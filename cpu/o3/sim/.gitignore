@@ -1,0 +1,16 @@
+# 忽略所有文件
+*
+!.gitignore
+
+# 但保留 .c、.cpp 和 .h 文件
+!*.c
+!*.cpp
+!*.h
+
+# 也保留所有子目录（否则 Git 不会跟踪它们）
+!*/
+!Makefile
+
+# 取消忽略 test/out 目录及其所有文件
+!test/out/
+!test/out/**

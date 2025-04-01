@@ -1,0 +1,2029 @@
+inst_queue.hh:82: * A standard instruction queue class.  It holds ready instructions, in
+inst_queue.hh:90: * track when memory operations are ready in terms of ordering; register
+inst_queue.hh:145:    /** Sets active threads list. */
+inst_queue.hh:146:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+inst_queue.hh:160:    /** Takes over execution from another CPU's thread. */
+inst_queue.hh:163:    /** Number of entries needed for given amount of threads. */
+inst_queue.hh:164:    int entryAmount(ThreadID num_threads);
+inst_queue.hh:166:    /** Resets max entries for all threads. */
+inst_queue.hh:172:    /** Returns number of free entries for a thread. */
+inst_queue.hh:173:    unsigned numFreeEntries(ThreadID tid);
+inst_queue.hh:178:    /** Returns whether or not the IQ is full for a specific thread. */
+inst_queue.hh:179:    bool isFull(ThreadID tid);
+inst_queue.hh:181:    /** Returns if there are any ready instructions in the IQ. */
+inst_queue.hh:201:     *  translation if it is now ready to execute.  NULL if none available.
+inst_queue.hh:224:     * Schedules ready instructions, adding the ready ones (oldest first) to
+inst_queue.hh:234:     * for a specific thread.
+inst_queue.hh:236:    void commit(const InstSeqNum &inst, ThreadID tid = 0);
+inst_queue.hh:241:    /** Adds a ready memory instruction to the ready list. */
+inst_queue.hh:242:    void addReadyMemInst(const DynInstPtr &ready_inst);
+inst_queue.hh:245:     * Reschedules a memory instruction. It will be ready to issue once
+inst_queue.hh:269:     * Squashes instructions for a thread. Squashing information is obtained
+inst_queue.hh:272:    void squash(ThreadID tid);
+inst_queue.hh:274:    /** Returns the number of used entries for a thread. */
+inst_queue.hh:275:    unsigned getCount(ThreadID tid) { return count[tid]; };
+inst_queue.hh:282:    void doSquash(ThreadID tid);
+inst_queue.hh:300:    MemDepUnit memDepUnit[MaxThreads];
+inst_queue.hh:310:    /** Wire to read information from timebuffer. */
+inst_queue.hh:317:    // Instruction lists, ready queues, and ordering
+inst_queue.hh:321:    std::list<DynInstPtr> instList[MaxThreads];
+inst_queue.hh:323:    /** List of instructions that are ready to be executed. */
+inst_queue.hh:354:    /** List of ready instructions, per op class.  They are separated by op
+inst_queue.hh:357:    ReadyInstQueue readyInsts[Num_OpClasses];
+inst_queue.hh:378:     *  ready queue.  Used to select the oldest instruction available
+inst_queue.hh:388:    /** Tracks if each ready queue is on the age order list. */
+inst_queue.hh:391:    /** Iterators of each ready queue.  Points to their spot in the age order
+inst_queue.hh:394:    ListOrderIt readyIt[Num_OpClasses];
+inst_queue.hh:400:     * Called when the oldest instruction has been removed from a ready queue;
+inst_queue.hh:401:     * this places that ready queue into the proper spot in the age order list.
+inst_queue.hh:414:    /** Number of Total Threads*/
+inst_queue.hh:415:    ThreadID numThreads;
+inst_queue.hh:417:    /** Pointer to list of active threads. */
+inst_queue.hh:418:    std::list<ThreadID> *activeThreads;
+inst_queue.hh:420:    /** Per Thread IQ count */
+inst_queue.hh:421:    unsigned count[MaxThreads];
+inst_queue.hh:423:    /** Max IQ Entries Per Thread */
+inst_queue.hh:424:    unsigned maxEntries[MaxThreads];
+inst_queue.hh:447:    InstSeqNum squashedSeqNum[MaxThreads];
+inst_queue.hh:463:    /** Moves an instruction to the ready queue if it is ready. */
+inst_queue.hh:502:        /** Stat for number of squashed instructions that were ready to
+inst_queue.hh:525:         * @todo: Need to create struct to track the ready time for each
+scoreboard.hh:50: * ready. This class operates on the unified physical register space,
+scoreboard.hh:52: * Registers being part of a fixed mapping are always considered ready.
+scoreboard.hh:62:     *  are ready. */
+scoreboard.hh:81:    /** Checks if the register is ready. */
+scoreboard.hh:86:            // Fixed mapping regs are always ready
+scoreboard.hh:95:    /** Sets the register as ready. */
+scoreboard.hh:100:            // Fixed mapping regs are always ready, ignore attempts to change
+scoreboard.hh:107:        DPRINTF(Scoreboard, "Setting reg %i (%s) as ready\n",
+scoreboard.hh:113:    /** Sets the register as not ready. */
+scoreboard.hh:118:            // Fixed mapping regs are always ready, ignore attempts to
+dvr_buffer.cc:70://         bool need_imm = !inst.entry.readExtra2;
+dvr_buffer.cc:71://         bool need_trans1 = inst.entry.readExtra1 && !inst.isTainted1;
+dvr_buffer.cc:72://         bool need_trans2 = inst.entry.readExtra2 && !inst.isTainted2;
+fetch.hh:72: * Fetch class handles both single threaded and SMT fetch. Its
+fetch.hh:117:            gem5::ThreadContext *tc, BaseMMU::Mode mode)
+fetch.hh:169:    /** Individual thread status. */
+fetch.hh:170:    enum ThreadStatus
+fetch.hh:190:    /** Per-thread status. */
+fetch.hh:191:    ThreadStatus fetchStatus[MaxThreads];
+fetch.hh:196:    /** List that has the threads organized by priority. */
+fetch.hh:197:    std::list<ThreadID> priorityList;
+fetch.hh:220:    /** Sets pointer to list of active threads. */
+fetch.hh:221:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+fetch.hh:229:    /** Clear all thread-specific states*/
+fetch.hh:230:    void clearStates(ThreadID tid);
+fetch.hh:247:    /** Takes over from another CPU's thread. */
+fetch.hh:254:     * thread that has been drained. The drain stall is different from
+fetch.hh:259:    void drainStall(ThreadID tid);
+fetch.hh:265:    void deactivateThread(ThreadID tid);
+fetch.hh:298:     * @param tid Thread id.
+fetch.hh:302:    bool fetchCacheLine(Addr vaddr, ThreadID tid, Addr pc);
+fetch.hh:310:    /** Squashes a specific thread and resets the PC. */
+fetch.hh:312:            ThreadID tid);
+fetch.hh:314:    /** Squashes a specific thread and resets the PC. Also tells the CPU to
+fetch.hh:320:                          const InstSeqNum seq_num, ThreadID tid);
+fetch.hh:322:    /** Checks if a thread is stalled. */
+fetch.hh:323:    bool checkStall(ThreadID tid) const;
+fetch.hh:330:    /** Squashes a specific thread and resets the PC. Also tells the CPU to
+fetch.hh:335:                DynInstPtr squashInst, ThreadID tid);
+fetch.hh:345:    bool checkSignalsAndUpdate(ThreadID tid);
+fetch.hh:361:    InstDecoder *decoder[MaxThreads];
+fetch.hh:366:    DynInstPtr buildInst(ThreadID tid, StaticInstPtr staticInst,
+fetch.hh:370:    /** Returns the appropriate thread to fetch, given the fetch policy. */
+fetch.hh:371:    ThreadID getFetchingThread();
+fetch.hh:373:    /** Returns the appropriate thread to fetch using a round robin policy. */
+fetch.hh:374:    ThreadID roundRobin();
+fetch.hh:376:    /** Returns the appropriate thread to fetch using the IQ count policy. */
+fetch.hh:377:    ThreadID iqCount();
+fetch.hh:379:    /** Returns the appropriate thread to fetch using the LSQ count policy. */
+fetch.hh:380:    ThreadID lsqCount();
+fetch.hh:382:    /** Returns the appropriate thread to fetch using the branch count
+fetch.hh:384:    ThreadID branchCount();
+fetch.hh:387:    void pipelineIcacheAccesses(ThreadID tid);
+fetch.hh:390:    void profileStall(ThreadID tid);
+fetch.hh:418:    std::unique_ptr<PCStateBase> pc[MaxThreads];
+fetch.hh:420:    Addr fetchOffset[MaxThreads];
+fetch.hh:422:    StaticInstPtr macroop[MaxThreads];
+fetch.hh:425:    bool delayedCommit[MaxThreads];
+fetch.hh:428:    RequestPtr memReq[MaxThreads];
+fetch.hh:446:    Stalls stalls[MaxThreads];
+fetch.hh:466:    /** Is the cache blocked?  If so no threads can access it. */
+fetch.hh:472:    /** The thread that is waiting on the cache to tell fetch to retry. */
+fetch.hh:473:    ThreadID retryTid;
+fetch.hh:487:    uint8_t *fetchBuffer[MaxThreads];
+fetch.hh:490:    Addr fetchBufferPC[MaxThreads];
+fetch.hh:495:    /** Queue of fetched instructions. Per-thread to prevent HoL blocking. */
+fetch.hh:496:    std::deque<DynInstPtr> fetchQueue[MaxThreads];
+fetch.hh:499:    bool fetchBufferValid[MaxThreads];
+fetch.hh:505:    Counter lastIcacheStall[MaxThreads];
+fetch.hh:507:    /** List of Active Threads */
+fetch.hh:508:    std::list<ThreadID> *activeThreads;
+fetch.hh:510:    /** Number of threads. */
+fetch.hh:511:    ThreadID numThreads;
+fetch.hh:513:    /** Number of threads that are actively fetching. */
+fetch.hh:514:    ThreadID numFetchingThreads;
+fetch.hh:516:    /** Thread ID being fetched. */
+fetch.hh:517:    ThreadID threadFetched;
+fetch.hh:528:    bool issuePipelinedIfetch[MaxThreads];
+fetch.hh:538:        // vectors and tracking on a per thread basis.
+fetch.hh:558:        /** Total number of stall cycles caused by no active threads to run. */
+fetch.hh:559:        statistics::Scalar noActiveThreadStallCycles;
+probe/elastic_trace.cc:75:    fatal_if(cpu->numThreads > 1, "numThreads = %i, %s supports tracing for"\
+probe/elastic_trace.cc:76:                "single-threaded workload only", cpu->numThreads, name());
+probe/elastic_trace.cc:183:        has already retired (mostly squashed)", dyn_inst->seqNum);
+probe/elastic_trace.cc:191:    // Either the execution info object will already exist if this
+probe/elastic_trace.cc:317:    // If there is a squashed load for which a read request was
+probe/elastic_trace.cc:379:        } else if (!head_inst->readPredicate()) {
+probe/elastic_trace.cc:490:    // because it was outside the window, it is marked ready in the ROB at the
+probe/elastic_trace.hh:91: * The output trace can be read in and played back by the TraceCPU.
+probe/elastic_trace.hh:140:     * instruction in flight when it is execution is complete and it is ready
+probe/elastic_trace.hh:152:     * window it is assumed as already complete. Duplicate entries are avoided.
+probe/elastic_trace.hh:207:         * and instruction is marked as ready to commit
+probe/elastic_trace.hh:268:        /* Tick when instruction was marked ready and sent to commit stage. */
+probe/elastic_trace.hh:326:     * i.e. adding children as records are read from the trace in an efficient
+probe/elastic_trace.hh:380:     *                      ROB and ready to commit
+comm.hh:93:    DynInstPtr mispredictInst[MaxThreads];
+comm.hh:94:    Addr mispredPC[MaxThreads];
+comm.hh:95:    InstSeqNum squashedSeqNum[MaxThreads];
+comm.hh:96:    std::unique_ptr<PCStateBase> pc[MaxThreads];
+comm.hh:98:    bool squash[MaxThreads];
+comm.hh:99:    bool branchMispredict[MaxThreads];
+comm.hh:100:    bool branchTaken[MaxThreads];
+comm.hh:101:    bool includeSquashInst[MaxThreads];
+comm.hh:129:    DecodeComm decodeInfo[MaxThreads];
+comm.hh:133:    RenameComm renameInfo[MaxThreads];
+comm.hh:152:    IewComm iewInfo[MaxThreads];
+comm.hh:199:        /// Rename should re-read number of free rob entries
+comm.hh:218:    CommitComm commitInfo[MaxThreads];
+comm.hh:220:    bool decodeBlock[MaxThreads];
+comm.hh:221:    bool decodeUnblock[MaxThreads];
+comm.hh:222:    bool renameBlock[MaxThreads];
+comm.hh:223:    bool renameUnblock[MaxThreads];
+comm.hh:224:    bool iewBlock[MaxThreads];
+comm.hh:225:    bool iewUnblock[MaxThreads];
+decode.cc:72:      numThreads(params.numThreads),
+decode.cc:82:    for (int tid = 0; tid < MaxThreads; tid++) {
+decode.cc:98:Decode::clearStates(ThreadID tid)
+decode.cc:110:    for (ThreadID tid = 0; tid < numThreads; ++tid) {
+decode.cc:187:    // Setup wire to read information from fetch queue.
+decode.cc:192:Decode::setActiveThreads(std::list<ThreadID> *at_ptr)
+decode.cc:194:    activeThreads = at_ptr;
+decode.cc:200:    for (ThreadID tid = 0; tid < numThreads; ++tid) {
+decode.cc:209:    for (ThreadID tid = 0; tid < numThreads; ++tid) {
+decode.cc:218:Decode::checkStall(ThreadID tid) const
+decode.cc:237:Decode::block(ThreadID tid)
+decode.cc:266:Decode::unblock(ThreadID tid)
+decode.cc:284:Decode::squash(const DynInstPtr &inst, ThreadID tid)
+decode.cc:304:    toFetch->decodeInfo[tid].branchTaken = inst->readPredTaken() ||
+decode.cc:321:        if (fromFetch->insts[i]->threadNumber == tid &&
+decode.cc:342:Decode::squash(ThreadID tid)
+decode.cc:369:        if (fromFetch->insts[i]->threadNumber == tid) {
+decode.cc:389:Decode::skidInsert(ThreadID tid)
+decode.cc:398:        assert(tid == inst->threadNumber);
+decode.cc:403:                "skidBuffer %i\n", inst->threadNumber, inst->seqNum,
+decode.cc:407:    // @todo: Eventually need to enforce this by not letting a thread
+decode.cc:415:    list<ThreadID>::iterator threads = activeThreads->begin();
+decode.cc:416:    list<ThreadID>::iterator end = activeThreads->end();
+decode.cc:418:    while (threads != end) {
+decode.cc:419:        ThreadID tid = *threads++;
+decode.cc:432:    list<ThreadID>::iterator threads = activeThreads->begin();
+decode.cc:433:    list<ThreadID>::iterator end = activeThreads->end();
+decode.cc:435:    while (threads != end) {
+decode.cc:436:        ThreadID tid = *threads++;
+decode.cc:470:        insts[fromFetch->insts[i]->threadNumber].push(fromFetch->insts[i]);
+decode.cc:475:Decode::readStallSignals(ThreadID tid)
+decode.cc:488:Decode::checkSignalsAndUpdate(ThreadID tid)
+decode.cc:498:    // Update the per thread stall statuses.
+decode.cc:499:    readStallSignals(tid);
+decode.cc:552:    list<ThreadID>::iterator threads = activeThreads->begin();
+decode.cc:553:    list<ThreadID>::iterator end = activeThreads->end();
+decode.cc:558:    while (threads != end) {
+decode.cc:559:        ThreadID tid = *threads++;
+decode.cc:579:Decode::decode(bool &status_change, ThreadID tid)
+decode.cc:623:Decode::decodeInsts(ThreadID tid)
+decode.cc:679:        // them as ready to issue at any time.  Not sure if this check
+decode.cc:704:        if (inst->readPredTaken() && !inst->isControl()) {
+decode.cc:711:            squash(inst, inst->threadNumber);
+decode.cc:720:           (inst->isUncondCtrl() || inst->readPredTaken()))
+decode.cc:725:            if (*target != inst->readPredTarg()) {
+decode.cc:730:                squash(inst, inst->threadNumber);
+decode.cc:736:                        tid, inst->seqNum, inst->readPredTarg(), *target);
+mem_dep_unit.hh:108:    /** Initializes the unit with parameters and a thread id. */
+mem_dep_unit.hh:109:    void init(const BaseO3CPUParams &params, ThreadID tid, CPU *cpu);
+mem_dep_unit.hh:117:    /** Takes over from another CPU's thread. */
+mem_dep_unit.hh:132:    /** Indicate that an instruction has its registers ready. */
+mem_dep_unit.hh:135:    /** Indicate that a non-speculative instruction is ready. */
+mem_dep_unit.hh:142:     *  the ready list.
+mem_dep_unit.hh:150:     *  specific thread.
+mem_dep_unit.hh:152:    void squash(const InstSeqNum &squashed_num, ThreadID tid);
+mem_dep_unit.hh:179:     *  when the instruction is ready to execute and what instructions depend
+mem_dep_unit.hh:203:        /** If the registers are ready or not. */
+mem_dep_unit.hh:223:    /** Moves an entry to the ready list. */
+mem_dep_unit.hh:224:    void moveToReady(MemDepEntryPtr &ready_inst_entry);
+mem_dep_unit.hh:234:    std::list<DynInstPtr> instList[MaxThreads];
+mem_dep_unit.hh:264:    /** The thread id of this memory dependence unit. */
+fetch.cc:93:      retryTid(InvalidThreadID),
+fetch.cc:98:      numThreads(params.numThreads),
+fetch.cc:99:      numFetchingThreads(params.smtNumFetchingThreads),
+fetch.cc:103:    if (numThreads > MaxThreads)
+fetch.cc:104:        fatal("numThreads (%d) is larger than compiled limit (%d),\n"
+fetch.cc:105:              "\tincrease MaxThreads in src/cpu/o3/limits.hh\n",
+fetch.cc:106:              numThreads, static_cast<int>(MaxThreads));
+fetch.cc:118:    for (int i = 0; i < MaxThreads; i++) {
+fetch.cc:136:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+fetch.cc:178:    ADD_STAT(noActiveThreadStallCycles, statistics::units::Cycle::get(),
+fetch.cc:179:             "Number of stall cycles due to no active thread to fetch from"),
+fetch.cc:216:        noActiveThreadStallCycles
+fetch.cc:217:            .prereq(noActiveThreadStallCycles);
+fetch.cc:249:Fetch::setActiveThreads(std::list<ThreadID> *at_ptr)
+fetch.cc:251:    activeThreads = at_ptr;
+fetch.cc:273:Fetch::clearStates(ThreadID tid)
+fetch.cc:301:    for (ThreadID tid = 0; tid < numThreads; ++tid) {
+fetch.cc:328:    ThreadID tid = cpu->contextToThread(pkt->req->contextId());
+fetch.cc:371:    for (ThreadID i = 0; i < numThreads; ++i) {
+fetch.cc:382:    assert(retryTid == InvalidThreadID);
+fetch.cc:386:    for (ThreadID i = 0; i < numThreads; ++i) {
+fetch.cc:397:    /* Make sure that threads are either idle of that the commit stage
+fetch.cc:403:    for (ThreadID i = 0; i < numThreads; ++i) {
+fetch.cc:433:Fetch::drainStall(ThreadID tid)
+fetch.cc:437:    DPRINTF(Drain, "%i: Thread drained.\n", tid);
+fetch.cc:446:    // @todo: Allow other threads to wake from quiesce.
+fetch.cc:475:Fetch::deactivateThread(ThreadID tid)
+fetch.cc:478:    auto thread_it = std::find(priorityList.begin(), priorityList.end(), tid);
+fetch.cc:479:    if (thread_it != priorityList.end()) {
+fetch.cc:480:        priorityList.erase(thread_it);
+fetch.cc:499:    ThreadID tid = inst->threadNumber;
+fetch.cc:529:Fetch::fetchCacheLine(Addr vaddr, ThreadID tid, Addr pc)
+fetch.cc:557:    // Setup the memReq to do a read of the first instruction's address.
+fetch.cc:558:    // Set the appropriate read size and flags as well.
+fetch.cc:563:        cpu->thread[tid]->contextId());
+fetch.cc:572:    cpu->mmu->translateTiming(mem_req, cpu->thread[tid]->getTC(),
+fetch.cc:580:    ThreadID tid = cpu->contextToThread(mem_req->contextId());
+fetch.cc:597:    // If translation was successful, attempt to read the icache block.
+fetch.cc:616:        DPRINTF(Fetch, "Fetch: Doing instruction read.\n");
+fetch.cc:623:            assert(retryTid == InvalidThreadID);
+fetch.cc:657:        // Send the fault to commit.  This thread will not do anything
+fetch.cc:686:        ThreadID tid)
+fetch.cc:711:    // Get rid of the retrying packet if it was from this thread.
+fetch.cc:718:        retryTid = InvalidThreadID;
+fetch.cc:738:        const InstSeqNum seq_num, ThreadID tid)
+fetch.cc:750:Fetch::checkStall(ThreadID tid) const
+fetch.cc:767:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+fetch.cc:768:    std::list<ThreadID>::iterator end = activeThreads->end();
+fetch.cc:770:    while (threads != end) {
+fetch.cc:771:        ThreadID tid = *threads++;
+fetch.cc:804:        DynInstPtr squashInst, ThreadID tid)
+fetch.cc:817:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+fetch.cc:818:    std::list<ThreadID>::iterator end = activeThreads->end();
+fetch.cc:823:    for (ThreadID i = 0; i < numThreads; ++i) {
+fetch.cc:827:    while (threads != end) {
+fetch.cc:828:        ThreadID tid = *threads++;
+fetch.cc:830:        // Check the signals for each thread to determine the proper status
+fetch.cc:831:        // for each thread.
+fetch.cc:848:    for (threadFetched = 0; threadFetched < numFetchingThreads;
+fetch.cc:849:         threadFetched++) {
+fetch.cc:850:        // Fetch each of the actively fetching threads.
+fetch.cc:863:    for (ThreadID i = 0; i < numThreads; ++i) {
+fetch.cc:874:    for (auto tid : *activeThreads) {
+fetch.cc:880:    // Pick a random thread to start trying to grab instructions from
+fetch.cc:881:    auto tid_itr = activeThreads->begin();
+fetch.cc:883:            rng->random<uint8_t>(0, activeThreads->size() - 1));
+fetch.cc:886:        ThreadID tid = *tid_itr;
+fetch.cc:901:        // Wrap around if at end of active threads list
+fetch.cc:902:        if (tid_itr == activeThreads->end())
+fetch.cc:903:            tid_itr = activeThreads->begin();
+fetch.cc:917:Fetch::checkSignalsAndUpdate(ThreadID tid)
+fetch.cc:919:    // Update the per thread stall statuses.
+fetch.cc:979:            // Squash unless we're already squashing
+fetch.cc:1019:Fetch::buildInst(ThreadID tid, StaticInstPtr staticInst,
+fetch.cc:1035:    instruction->setThreadState(cpu->thread[tid]);
+fetch.cc:1077:    ThreadID tid = getFetchingThread();
+fetch.cc:1081:    if (tid == InvalidThreadID) {
+fetch.cc:1083:        threadFetched = numFetchingThreads;
+fetch.cc:1085:        if (numThreads == 1) {  // @todo Per-thread stats
+fetch.cc:1120:            DPRINTF(Fetch, "[tid:%i] Attempting to translate and read "
+fetch.cc:1159:    // If the read of the first instruction was successful, then grab the
+fetch.cc:1185:        // StaticInst from the rom, the current macroop, or what's already
+fetch.cc:1337:        assert(retryTid != InvalidThreadID);
+fetch.cc:1346:            retryTid = InvalidThreadID;
+fetch.cc:1350:        assert(retryTid == InvalidThreadID);
+fetch.cc:1362:ThreadID
+fetch.cc:1363:Fetch::getFetchingThread()
+fetch.cc:1365:    if (numThreads > 1) {
+fetch.cc:1376:            return InvalidThreadID;
+fetch.cc:1379:        std::list<ThreadID>::iterator thread = activeThreads->begin();
+fetch.cc:1380:        if (thread == activeThreads->end()) {
+fetch.cc:1381:            return InvalidThreadID;
+fetch.cc:1384:        ThreadID tid = *thread;
+fetch.cc:1391:            return InvalidThreadID;
+fetch.cc:1397:ThreadID
+fetch.cc:1400:    std::list<ThreadID>::iterator pri_iter = priorityList.begin();
+fetch.cc:1401:    std::list<ThreadID>::iterator end      = priorityList.end();
+fetch.cc:1403:    ThreadID high_pri;
+fetch.cc:1408:        assert(high_pri <= numThreads);
+fetch.cc:1423:    return InvalidThreadID;
+fetch.cc:1426:ThreadID
+fetch.cc:1432:    std::map<unsigned, ThreadID> threadMap;
+fetch.cc:1434:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+fetch.cc:1435:    std::list<ThreadID>::iterator end = activeThreads->end();
+fetch.cc:1437:    while (threads != end) {
+fetch.cc:1438:        ThreadID tid = *threads++;
+fetch.cc:1441:        //we can potentially get tid collisions if two threads
+fetch.cc:1444:        threadMap[iqCount] = tid;
+fetch.cc:1448:        ThreadID high_pri = threadMap[PQ.top()];
+fetch.cc:1459:    return InvalidThreadID;
+fetch.cc:1462:ThreadID
+fetch.cc:1468:    std::map<unsigned, ThreadID> threadMap;
+fetch.cc:1470:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+fetch.cc:1471:    std::list<ThreadID>::iterator end = activeThreads->end();
+fetch.cc:1473:    while (threads != end) {
+fetch.cc:1474:        ThreadID tid = *threads++;
+fetch.cc:1477:        //we can potentially get tid collisions if two threads
+fetch.cc:1480:        threadMap[ldstqCount] = tid;
+fetch.cc:1484:        ThreadID high_pri = threadMap[PQ.top()];
+fetch.cc:1494:    return InvalidThreadID;
+fetch.cc:1497:ThreadID
+fetch.cc:1501:    return InvalidThreadID;
+fetch.cc:1505:Fetch::pipelineIcacheAccesses(ThreadID tid)
+fetch.cc:1524:    // Unless buffer already got the block, fetch it from icache.
+fetch.cc:1534:Fetch::profileStall(ThreadID tid)
+fetch.cc:1536:    DPRINTF(Fetch,"There are no more threads available to fetch from.\n");
+fetch.cc:1538:    // @todo Per-thread stats
+fetch.cc:1543:    } else if (activeThreads->empty()) {
+fetch.cc:1544:        ++fetchStats.noActiveThreadStallCycles;
+fetch.cc:1545:        DPRINTF(Fetch, "Fetch has no active thread!\n");
+lsq_unit.hh:78: * thread.  Both are circular queues; load entries are freed upon
+lsq_unit.hh:237:    /** Takes over from another CPU's thread. */
+lsq_unit.hh:445:    /** The LSQUnit thread id. */
+lsq_unit.hh:446:    ThreadID lsqID;
+lsq_unit.hh:473:    /** The index of the first instruction that may be ready to be
+lsq_unit.hh:481:    /** Wire to read information from the issue stage time queue. */
+lsq_unit.hh:509:    // Will also need how many read/write ports the Dcache has.  Or keep track
+lsq_unit.hh:523:         * ignored due to the instruction already being squashed. */
+lsq_unit.hh:545:    Fault read(LSQRequest *request, ssize_t load_idx);
+lsq.cc:81:      maxLQEntries(maxLSQAllocation(lsqPolicy, LQEntries, params.numThreads,
+lsq.cc:83:      maxSQEntries(maxLSQAllocation(lsqPolicy, SQEntries, params.numThreads,
+lsq.cc:86:      numThreads(params.numThreads)
+lsq.cc:88:    assert(numThreads > 0 && numThreads <= MaxThreads);
+lsq.cc:114:    thread.reserve(numThreads);
+lsq.cc:115:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+lsq.cc:116:        thread.emplace_back(maxLQEntries, maxSQEntries);
+lsq.cc:117:        thread[tid].init(cpu, iew_ptr, params, this, tid);
+lsq.cc:118:        thread[tid].setDcachePort(&dcachePort);
+lsq.cc:130:LSQ::setActiveThreads(std::list<ThreadID> *at_ptr)
+lsq.cc:132:    activeThreads = at_ptr;
+lsq.cc:133:    assert(activeThreads != 0);
+lsq.cc:141:    for (ThreadID tid = 0; tid < numThreads; tid++)
+lsq.cc:142:        thread[tid].drainSanityCheck();
+lsq.cc:169:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+lsq.cc:170:        thread[tid].takeOverFrom();
+lsq.cc:223:    ThreadID tid = load_inst->threadNumber;
+lsq.cc:225:    thread[tid].insertLoad(load_inst);
+lsq.cc:231:    ThreadID tid = store_inst->threadNumber;
+lsq.cc:233:    thread[tid].insertStore(store_inst);
+lsq.cc:239:    ThreadID tid = inst->threadNumber;
+lsq.cc:241:    return thread[tid].executeLoad(inst);
+lsq.cc:247:    ThreadID tid = inst->threadNumber;
+lsq.cc:249:    return thread[tid].executeStore(inst);
+lsq.cc:253:LSQ::commitLoads(InstSeqNum &youngest_inst, ThreadID tid)
+lsq.cc:255:    thread.at(tid).commitLoads(youngest_inst);
+lsq.cc:259:LSQ::commitStores(InstSeqNum &youngest_inst, ThreadID tid)
+lsq.cc:261:    thread.at(tid).commitStores(youngest_inst);
+lsq.cc:267:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:268:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:270:    while (threads != end) {
+lsq.cc:271:        ThreadID tid = *threads++;
+lsq.cc:278:        thread[tid].writebackStores();
+lsq.cc:283:LSQ::squash(const InstSeqNum &squashed_num, ThreadID tid)
+lsq.cc:285:    thread.at(tid).squash(squashed_num);
+lsq.cc:292:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:293:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:295:    while (threads != end) {
+lsq.cc:296:        ThreadID tid = *threads++;
+lsq.cc:298:        if (thread[tid].violation())
+lsq.cc:305:bool LSQ::violation(ThreadID tid) { return thread.at(tid).violation(); }
+lsq.cc:308:LSQ::getMemDepViolator(ThreadID tid)
+lsq.cc:310:    return thread.at(tid).getMemDepViolator();
+lsq.cc:314:LSQ::getLoadHead(ThreadID tid)
+lsq.cc:316:    return thread.at(tid).getLoadHead();
+lsq.cc:320:LSQ::getLoadHeadSeqNum(ThreadID tid)
+lsq.cc:322:    return thread.at(tid).getLoadHeadSeqNum();
+lsq.cc:326:LSQ::getStoreHead(ThreadID tid)
+lsq.cc:328:    return thread.at(tid).getStoreHead();
+lsq.cc:332:LSQ::getStoreHeadSeqNum(ThreadID tid)
+lsq.cc:334:    return thread.at(tid).getStoreHeadSeqNum();
+lsq.cc:337:int LSQ::getCount(ThreadID tid) { return thread.at(tid).getCount(); }
+lsq.cc:339:int LSQ::numLoads(ThreadID tid) { return thread.at(tid).numLoads(); }
+lsq.cc:341:int LSQ::numStores(ThreadID tid) { return thread.at(tid).numStores(); }
+lsq.cc:344:LSQ::numHtmStarts(ThreadID tid) const
+lsq.cc:346:    if (tid == InvalidThreadID)
+lsq.cc:349:        return thread[tid].numHtmStarts();
+lsq.cc:352:LSQ::numHtmStops(ThreadID tid) const
+lsq.cc:354:    if (tid == InvalidThreadID)
+lsq.cc:357:        return thread[tid].numHtmStops();
+lsq.cc:361:LSQ::resetHtmStartsStops(ThreadID tid)
+lsq.cc:363:    if (tid != InvalidThreadID)
+lsq.cc:364:        thread[tid].resetHtmStartsStops();
+lsq.cc:368:LSQ::getLatestHtmUid(ThreadID tid) const
+lsq.cc:370:    if (tid == InvalidThreadID)
+lsq.cc:373:        return thread[tid].getLatestHtmUid();
+lsq.cc:377:LSQ::setLastRetiredHtmUid(ThreadID tid, uint64_t htmUid)
+lsq.cc:379:    if (tid != InvalidThreadID)
+lsq.cc:380:        thread[tid].setLastRetiredHtmUid(htmUid);
+lsq.cc:389:    for (ThreadID tid : *activeThreads) {
+lsq.cc:390:        thread[tid].recvRetry();
+lsq.cc:398:    thread[cpu->contextToThread(request->contextId())]
+lsq.cc:412:    thread[cpu->contextToThread(request->contextId())].recvTimingResp(pkt);
+lsq.cc:429:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+lsq.cc:430:            thread[tid].checkSnoop(pkt);
+lsq.cc:453:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+lsq.cc:454:            thread[tid].checkSnoop(pkt);
+lsq.cc:463:        for (auto& unit : thread) {
+lsq.cc:477:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:478:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:480:    while (threads != end) {
+lsq.cc:481:        ThreadID tid = *threads++;
+lsq.cc:494:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:495:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:497:    while (threads != end) {
+lsq.cc:498:        ThreadID tid = *threads++;
+lsq.cc:511:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:512:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:514:    while (threads != end) {
+lsq.cc:515:        ThreadID tid = *threads++;
+lsq.cc:517:        total += thread[tid].numStores();
+lsq.cc:528:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:529:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:531:    while (threads != end) {
+lsq.cc:532:        ThreadID tid = *threads++;
+lsq.cc:534:        total += thread[tid].numFreeLoadEntries();
+lsq.cc:545:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:546:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:548:    while (threads != end) {
+lsq.cc:549:        ThreadID tid = *threads++;
+lsq.cc:551:        total += thread[tid].numFreeStoreEntries();
+lsq.cc:558:LSQ::numFreeLoadEntries(ThreadID tid)
+lsq.cc:560:        return thread[tid].numFreeLoadEntries();
+lsq.cc:564:LSQ::numFreeStoreEntries(ThreadID tid)
+lsq.cc:566:        return thread[tid].numFreeStoreEntries();
+lsq.cc:572:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:573:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:575:    while (threads != end) {
+lsq.cc:576:        ThreadID tid = *threads++;
+lsq.cc:578:        if (!(thread[tid].lqFull() || thread[tid].sqFull()))
+lsq.cc:586:LSQ::isFull(ThreadID tid)
+lsq.cc:593:        return thread[tid].lqFull() || thread[tid].sqFull();
+lsq.cc:605:    std::list<ThreadID>::const_iterator threads = activeThreads->begin();
+lsq.cc:606:    std::list<ThreadID>::const_iterator end = activeThreads->end();
+lsq.cc:608:    while (threads != end) {
+lsq.cc:609:        ThreadID tid = *threads++;
+lsq.cc:611:        if (!thread[tid].lqEmpty())
+lsq.cc:621:    std::list<ThreadID>::const_iterator threads = activeThreads->begin();
+lsq.cc:622:    std::list<ThreadID>::const_iterator end = activeThreads->end();
+lsq.cc:624:    while (threads != end) {
+lsq.cc:625:        ThreadID tid = *threads++;
+lsq.cc:627:        if (!thread[tid].sqEmpty())
+lsq.cc:637:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:638:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:640:    while (threads != end) {
+lsq.cc:641:        ThreadID tid = *threads++;
+lsq.cc:643:        if (!thread[tid].lqFull())
+lsq.cc:651:LSQ::lqFull(ThreadID tid)
+lsq.cc:658:        return thread[tid].lqFull();
+lsq.cc:664:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:665:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:667:    while (threads != end) {
+lsq.cc:668:        ThreadID tid = *threads++;
+lsq.cc:678:LSQ::sqFull(ThreadID tid)
+lsq.cc:685:        return thread[tid].sqFull();
+lsq.cc:691:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:692:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:694:    while (threads != end) {
+lsq.cc:695:        ThreadID tid = *threads++;
+lsq.cc:697:        if (!thread[tid].isStalled())
+lsq.cc:705:LSQ::isStalled(ThreadID tid)
+lsq.cc:710:        return thread[tid].isStalled();
+lsq.cc:716:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:717:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:719:    while (threads != end) {
+lsq.cc:720:        ThreadID tid = *threads++;
+lsq.cc:730:LSQ::hasStoresToWB(ThreadID tid)
+lsq.cc:732:    return thread.at(tid).hasStoresToWB();
+lsq.cc:736:LSQ::numStoresToWB(ThreadID tid)
+lsq.cc:738:    return thread.at(tid).numStoresToWB();
+lsq.cc:744:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+lsq.cc:745:    std::list<ThreadID>::iterator end = activeThreads->end();
+lsq.cc:747:    while (threads != end) {
+lsq.cc:748:        ThreadID tid = *threads++;
+lsq.cc:758:LSQ::willWB(ThreadID tid)
+lsq.cc:760:    return thread.at(tid).willWB();
+lsq.cc:766:    std::list<ThreadID>::const_iterator threads = activeThreads->begin();
+lsq.cc:767:    std::list<ThreadID>::const_iterator end = activeThreads->end();
+lsq.cc:769:    while (threads != end) {
+lsq.cc:770:        ThreadID tid = *threads++;
+lsq.cc:772:        thread[tid].dumpInsts();
+lsq.cc:777:LSQ::dumpInsts(ThreadID tid) const
+lsq.cc:779:    thread.at(tid).dumpInsts();
+lsq.cc:792:    ThreadID tid = cpu->contextToThread(inst->contextId());
+lsq.cc:815:            request = new UnsquashableDirectRequest(&thread[tid], inst, flags);
+lsq.cc:817:            request = new SplitDataRequest(&thread[tid], inst, isLoad, addr,
+lsq.cc:820:            request = new SingleDataRequest(&thread[tid], inst, isLoad, addr,
+lsq.cc:850:                fault = read(request, inst->lqIdx);
+lsq.cc:875:        gem5::ThreadContext* tc, BaseMMU::Mode mode)
+lsq.cc:907:        gem5::ThreadContext* tc, BaseMMU::Mode mode)
+lsq.cc:1013:    /* We are block aligned now, reading whole blocks. */
+lsq.cc:1121:                [this, req](gem5::ThreadContext *tc, PacketPtr pkt) -> Cycles
+lsq.cc:1157:    _port.getMMUPtr()->translateTiming(req(i), _inst->thread->getTC(),
+lsq.cc:1346:        gem5::ThreadContext *thread, PacketPtr pkt)
+lsq.cc:1348:    return pkt->req->localAccessor(thread, pkt);
+lsq.cc:1353:        gem5::ThreadContext *thread, PacketPtr mainPkt)
+lsq.cc:1362:        Cycles d = r->localAccessor(thread, pkt);
+lsq.cc:1423:    for (ThreadID tid = 0; tid < cpu->numThreads; tid++) {
+lsq.cc:1492:        const RequestPtr &req, gem5::ThreadContext* tc,
+lsq.cc:1504:    // Check if all thread queues are complete
+lsq.cc:1505:    for (const auto& unit : thread) {
+lsq.cc:1509:    DPRINTF(LSQ, "No threads have blocking TLBI sync\n");
+lsq.cc:1511:    // All thread queues have committed their sync operations
+lsq.cc:1529:LSQ::read(LSQRequest* request, ssize_t load_idx)
+lsq.cc:1532:    ThreadID tid = cpu->contextToThread(request->req()->contextId());
+lsq.cc:1534:    return thread.at(tid).read(request, load_idx);
+lsq.cc:1540:    ThreadID tid = cpu->contextToThread(request->req()->contextId());
+lsq.cc:1542:    return thread.at(tid).write(request, data, store_idx);
+rename_map.hh:93:     * Because we have an array of rename maps (one per thread) in the CPU,
+rename_map.hh:185:    typedef std::array<UnifiedRenameMap, MaxThreads> PerThreadUnifiedRenameMap;
+rename_map.hh:200:     * RegId and reads the  appropriate class-specific rename table.
+rename_map.hh:256:            // which should always be setting it to what it already is.
+SConscript:57:    Source('thread_context.cc')
+SConscript:58:    Source('thread_state.cc')
+commit.hh:67:class ThreadState;
+commit.hh:70: * Commit handles single threaded and SMT commit. Its width is
+commit.hh:72: * many instructions. The SMT policy decides which thread it tries to
+commit.hh:74: * the head of the ROB before they are ready to execute; once they
+commit.hh:103:    /** Individual thread status. */
+commit.hh:104:    enum ThreadStatus
+commit.hh:119:    /** Per-thread status. */
+commit.hh:120:    ThreadStatus commitStatus[MaxThreads];
+commit.hh:130:    /** Mark the thread as processing a trap. */
+commit.hh:131:    void processTrapEvent(ThreadID tid);
+commit.hh:143:    /** Sets the list of threads. */
+commit.hh:144:    void setThreads(std::vector<ThreadState *> &threads);
+commit.hh:166:    /** Sets pointer to list of active threads. */
+commit.hh:167:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+commit.hh:170:    void setRenameMap(UnifiedRenameMap::PerThreadUnifiedRenameMap& rm_ptr);
+commit.hh:178:    /** Clear all thread-specific states */
+commit.hh:179:    void clearStates(ThreadID tid);
+commit.hh:193:    /** Takes over from another CPU's thread. */
+commit.hh:196:    /** Deschedules a thread from scheduling */
+commit.hh:197:    void deactivateThread(ThreadID tid);
+commit.hh:200:    bool executingHtmTransaction(ThreadID) const;
+commit.hh:203:    void resetHtmStartsStops(ThreadID);
+commit.hh:213:    /** Returns the number of free ROB entries for a specific thread. */
+commit.hh:214:    size_t numROBFreeEntries(ThreadID tid);
+commit.hh:217:    void generateTrapEvent(ThreadID tid, Fault inst_fault);
+commit.hh:222:    void generateTCEvent(ThreadID tid);
+commit.hh:230:    /** Returns if any of the threads have the number of ROB entries changed
+commit.hh:237:    void squashAll(ThreadID tid);
+commit.hh:240:    void squashFromTrap(ThreadID tid);
+commit.hh:243:    void squashFromTC(ThreadID tid);
+commit.hh:246:    void squashFromSquashAfter(ThreadID tid);
+commit.hh:260:     *   <li>Immediately set the commit status of the thread of
+commit.hh:261:     *       SquashAfterPending. This forces the thread to stop
+commit.hh:273:     * @param tid ID of the thread to squash.
+commit.hh:276:    void squashAfter(ThreadID tid, const DynInstPtr &head_inst);
+commit.hh:298:    /** Gets the thread to commit, based on the SMT policy. */
+commit.hh:299:    ThreadID getCommittingThread();
+commit.hh:301:    /** Returns the thread ID to use based on a round robin policy. */
+commit.hh:302:    ThreadID roundRobin();
+commit.hh:304:    /** Returns the thread ID to use based on an oldest instruction policy. */
+commit.hh:305:    ThreadID oldestReady();
+commit.hh:308:    /** Reads the PC of a specific thread. */
+commit.hh:309:    const PCStateBase &pcState(ThreadID tid) { return *pc[tid]; }
+commit.hh:311:    /** Sets the PC of a specific thread. */
+commit.hh:312:    void pcState(const PCStateBase &val, ThreadID tid) { set(pc[tid], val); }
+commit.hh:321:    /** Wire to read information from IEW (for ROB). */
+commit.hh:331:    /** Wire to read information from IEW queue. */
+commit.hh:337:    /** Wire to read information from rename queue. */
+commit.hh:348:    /** Vector of all of the threads. */
+commit.hh:349:    std::vector<ThreadState *> thread;
+commit.hh:359:    bool changedROBNumEntries[MaxThreads];
+commit.hh:361:    /** Records if a thread has to squash this cycle due to a trap. */
+commit.hh:362:    bool trapSquash[MaxThreads];
+commit.hh:364:    /** Records if a thread has to squash this cycle due to an XC write. */
+commit.hh:365:    bool tcSquash[MaxThreads];
+commit.hh:374:    DynInstPtr squashAfterInst[MaxThreads];
+commit.hh:377:    std::list<ThreadID> priority_list;
+commit.hh:398:    /** Number of Active Threads */
+commit.hh:399:    const ThreadID numThreads;
+commit.hh:421:    /** The commit PC state of each thread.  Refers to the instruction that
+commit.hh:424:    std::unique_ptr<PCStateBase> pc[MaxThreads];
+commit.hh:427:    InstSeqNum youngestSeqNum[MaxThreads];
+commit.hh:430:    InstSeqNum lastCommitedSeqNum[MaxThreads];
+commit.hh:433:    bool trapInFlight[MaxThreads];
+commit.hh:436:    bool committedStores[MaxThreads];
+commit.hh:440:    bool checkEmptyROB[MaxThreads];
+commit.hh:442:    /** Pointer to the list of active threads. */
+commit.hh:443:    std::list<ThreadID> *activeThreads;
+commit.hh:446:    UnifiedRenameMap *renameMap[MaxThreads];
+commit.hh:461:    int htmStarts[MaxThreads];
+commit.hh:462:    int htmStops[MaxThreads];
+fu_pool.hh:162:     * this op type have already been allocated to
+fu_pool.hh:204:    /** Takes over from another CPU's thread. */
+sim/main.cpp:125:                        !(entry->readValue1 > rptFiles.prev_addr &&  // TODO:是否能用stride_corr和loop_number计数代替
+sim/main.cpp:126:                        entry->readValue1 <= rptFiles.pref_addr)) {
+sim/main.cpp:142:                rptFiles.prev_addr = entry->readValue1;
+sim/main.cpp:152:                lbp.UpdateLastCompare(entry->pc,entry->readReg1,entry->readReg2,entry->readValue1,entry->readValue2);
+sim/main.cpp:157:                entry->readReg1,entry->readValue1,entry->readReg2,entry->readValue2);
+sim/parse_log.h:16:    uint8_t readReg1;
+sim/parse_log.h:17:    uint64_t readValue1;
+sim/parse_log.h:18:    bool readExtra1;
+sim/parse_log.h:19:    uint8_t readReg2;
+sim/parse_log.h:20:    uint64_t readValue2;
+sim/parse_log.h:21:    bool readExtra2;
+Binary file sim/test/depentloops/depentloops_gem5.riscv matches
+sim/test/depentloops/depentloops_gem5.dump:4003:   12d94:	9f2b0b13          	addi	s6,s6,-1550 # 16782 <__sread>
+sim/test/depentloops/depentloops_gem5.dump:9247:0000000000016782 <__sread>:
+sim/test/depentloops/depentloops_gem5.dump:9253:   1678e:	62c030ef          	jal	ra,19dba <_read_r>
+sim/test/depentloops/depentloops_gem5.dump:9254:   16792:	00054963          	bltz	a0,167a4 <__sread+0x22>
+sim/test/depentloops/depentloops_gem5.dump:9272:00000000000167ba <__seofread>:
+sim/test/depentloops/depentloops_gem5.dump:14216:0000000000019dba <_read_r>:
+sim/test/depentloops/depentloops_gem5.dump:14226:   19dce:	7a8010ef          	jal	ra,1b576 <_read>
+sim/test/depentloops/depentloops_gem5.dump:14228:   19dd4:	00f50663          	beq	a0,a5,19de0 <_read_r+0x26>
+sim/test/depentloops/depentloops_gem5.dump:14234:   19de4:	dbf5                	beqz	a5,19dd8 <_read_r+0x1e>
+sim/test/depentloops/depentloops_gem5.dump:16512:000000000001b576 <_read>:
+sim/test/depentloops/depentloops_gem5.dump:16519:   1b586:	00054763          	bltz	a0,1b594 <_read+0x1e>
+sim/test/depentloops/depentloops_gem5.dump:16529:   1b5a0:	b7ed                	j	1b58a <_read+0x14>
+sim/TaintTracker.cpp:9:    bool isTainted1 = isRegTainted(entry.readReg1) && entry.readExtra1; // Check if first source register is tainted
+sim/TaintTracker.cpp:10:    bool isTainted2 = isRegTainted(entry.readReg2) && entry.readExtra2; // Check if second source register is tainted
+sim/SmallBuffer.cpp:58:        bool need_imm = !inst.entry.readExtra2;
+sim/SmallBuffer.cpp:59:        bool need_trans1 = inst.entry.readExtra1 && !inst.isTainted1;
+sim/SmallBuffer.cpp:60:        bool need_trans2 = inst.entry.readExtra2 && !inst.isTainted2;
+sim/parseLogEntry.cpp:18:            static_cast<uint8_t>(std::stoi(match[6])),  // readReg1 
+sim/parseLogEntry.cpp:19:            std::stoull(match[7], nullptr, 16),  // readValue1 
+sim/parseLogEntry.cpp:21:            static_cast<uint8_t>(std::stoi(match[9])),  // readReg2 (转换为 uint8_t)
+sim/parseLogEntry.cpp:22:            std::stoull(match[10], nullptr, 16),  // readValue2 
+sim/parseLogEntry.cpp:79://                   << "Read Reg1: " << static_cast<int>(logEntry->readReg1) << "\n"
+sim/parseLogEntry.cpp:80://                   << "Read Value1: " << std::hex << logEntry->readValue1 << "\n"  // 以16进制输出 Read Value1
+sim/parseLogEntry.cpp:81://                   << "Read Reg2: " << static_cast<int>(logEntry->readReg2) << "\n"
+sim/parseLogEntry.cpp:82://                   << "Read Value2: " << std::hex << logEntry->readValue2 << "\n"  // 以16进制输出 Read Value2
+rename.cc:67:      numThreads(params.numThreads),
+rename.cc:77:    for (uint32_t tid = 0; tid < MaxThreads; tid++) {
+rename.cc:195:    // Setup wire to read information from time buffer, from IEW stage.
+rename.cc:198:    // Setup wire to read infromation from time buffer, from commit stage.
+rename.cc:230:Rename::clearStates(ThreadID tid)
+rename.cc:259:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+rename.cc:282:Rename::setActiveThreads(std::list<ThreadID> *at_ptr)
+rename.cc:284:    activeThreads = at_ptr;
+rename.cc:289:Rename::setRenameMap(UnifiedRenameMap::PerThreadUnifiedRenameMap& rm_ptr)
+rename.cc:291:    for (ThreadID tid = 0; tid < numThreads; tid++)
+rename.cc:310:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+rename.cc:330:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+rename.cc:339:Rename::squash(const InstSeqNum &squash_seq_num, ThreadID tid)
+rename.cc:373:        if (fromDecode->insts[i]->threadNumber == tid &&
+rename.cc:404:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+rename.cc:405:    std::list<ThreadID>::iterator end = activeThreads->end();
+rename.cc:408:    while (threads != end) {
+rename.cc:409:        ThreadID tid = *threads++;
+rename.cc:427:    threads = activeThreads->begin();
+rename.cc:429:    while (threads != end) {
+rename.cc:430:        ThreadID tid = *threads++;
+rename.cc:443:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+rename.cc:455:Rename::rename(bool &status_change, ThreadID tid)
+rename.cc:510:Rename::renameInsts(ThreadID tid)
+rename.cc:591:            // ROB already empty; no need to serialize.
+rename.cc:713:        renameSrcRegs(inst, inst->threadNumber);
+rename.cc:715:        renameDestRegs(inst, inst->threadNumber);
+rename.cc:760:Rename::skidInsert(ThreadID tid)
+rename.cc:769:        assert(tid == inst->threadNumber);
+rename.cc:798:        insts[inst->threadNumber].push_back(inst);
+rename.cc:810:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+rename.cc:811:    std::list<ThreadID>::iterator end = activeThreads->end();
+rename.cc:813:    while (threads != end) {
+rename.cc:814:        ThreadID tid = *threads++;
+rename.cc:828:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+rename.cc:829:    std::list<ThreadID>::iterator end = activeThreads->end();
+rename.cc:831:    while (threads != end) {
+rename.cc:832:        ThreadID tid = *threads++;
+rename.cc:862:Rename::block(ThreadID tid)
+rename.cc:871:    // rename is already blocked.
+rename.cc:895:Rename::unblock(ThreadID tid)
+rename.cc:915:Rename::doSquash(const InstSeqNum &squashed_seq_num, ThreadID tid)
+rename.cc:963:Rename::removeFromHistory(InstSeqNum inst_seq_num, ThreadID tid)
+rename.cc:1012:Rename::renameSrcRegs(const DynInstPtr &inst, ThreadID tid)
+rename.cc:1014:    gem5::ThreadContext *tc = inst->tcBase();
+rename.cc:1063:        // See if the register is ready or not.
+rename.cc:1067:                    "Register %d (flat: %d) (%s) is ready.\n",
+rename.cc:1075:                    "Register %d (flat: %d) (%s) is not ready.\n",
+rename.cc:1085:Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
+rename.cc:1087:    gem5::ThreadContext *tc = inst->tcBase();
+rename.cc:1139:Rename::calcFreeROBEntries(ThreadID tid)
+rename.cc:1150:Rename::calcFreeIQEntries(ThreadID tid)
+rename.cc:1161:Rename::calcFreeLQEntries(ThreadID tid)
+rename.cc:1174:Rename::calcFreeSQEntries(ThreadID tid)
+rename.cc:1199:Rename::readStallSignals(ThreadID tid)
+rename.cc:1212:Rename::checkStall(ThreadID tid)
+rename.cc:1240:Rename::readFreeEntries(ThreadID tid)
+rename.cc:1277:Rename::checkSignalsAndUpdate(ThreadID tid)
+rename.cc:1289:    readFreeEntries(tid);
+rename.cc:1290:    readStallSignals(tid);
+rename.cc:1388:Rename::serializeAfter(InstQueue &inst_list, ThreadID tid)
+rename.cc:1427:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+store_set.hh:97:    void insertStore(Addr store_PC, InstSeqNum store_seq_num, ThreadID tid);
+store_set.hh:108:    /** Squashes for a specific thread until the given sequence number. */
+store_set.hh:109:    void squash(InstSeqNum squashed_num, ThreadID tid);
+iew.hh:76: * IEW handles both single threaded and SMT IEW
+iew.hh:91: * up any dependents, and marking the register ready on the
+iew.hh:121:    StageStatus dispatchStatus[MaxThreads];
+iew.hh:148:    /** Clear all thread-specific states */
+iew.hh:149:    void clearStates(ThreadID tid);
+iew.hh:160:    /** Sets pointer to list of active threads. */
+iew.hh:161:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+iew.hh:176:    /** Takes over from another CPU's thread. */
+iew.hh:179:    /** Squashes instructions in IEW for a specific thread. */
+iew.hh:180:    void squash(ThreadID tid);
+iew.hh:202:    /** Inserts unused instructions of a thread into the skid buffer. */
+iew.hh:203:    void skidInsert(ThreadID tid);
+iew.hh:235:    bool hasStoresToWB(ThreadID tid) { return ldstQueue.hasStoresToWB(tid); }
+iew.hh:245:    void setLastRetiredHtmUid(ThreadID tid, uint64_t htmUid)
+iew.hh:254:    void squashDueToBranch(const DynInstPtr &inst, ThreadID tid);
+iew.hh:259:    void squashDueToMemOrder(const DynInstPtr &inst, ThreadID tid);
+iew.hh:262:    void block(ThreadID tid);
+iew.hh:267:    void unblock(ThreadID tid);
+iew.hh:270:    void dispatch(ThreadID tid);
+iew.hh:273:    void dispatchInsts(ThreadID tid);
+iew.hh:282:     * function atomically reads registers, executes, and writes registers.
+iew.hh:284:     * the scoreboard of registers becoming ready.
+iew.hh:289:    bool checkStall(ThreadID tid);
+iew.hh:292:    void checkSignalsAndUpdate(ThreadID tid);
+iew.hh:294:    /** Removes instructions from rename from a thread's instruction list. */
+iew.hh:295:    void emptyRenameInsts(ThreadID tid);
+iew.hh:297:    /** Sorts instructions coming from rename into lists separated by thread. */
+iew.hh:331:    /** Wire to read information from the issue stage time queue. */
+iew.hh:344:    std::queue<DynInstPtr> insts[MaxThreads];
+iew.hh:347:    std::queue<DynInstPtr> skidBuffer[MaxThreads];
+iew.hh:387:    /** Records if there is a fetch redirect on this cycle for each thread. */
+iew.hh:388:    bool fetchRedirect[MaxThreads];
+iew.hh:427:    /** Number of active threads. */
+iew.hh:428:    ThreadID numThreads;
+iew.hh:430:    /** Pointer to list of active threads. */
+iew.hh:431:    std::list<ThreadID> *activeThreads;
+lsq.hh:319:         * The LSQRequest owns the request. If the packet has already been
+lsq.hh:428:                gem5::ThreadContext *thread, PacketPtr pkt) = 0;
+lsq.hh:543:            /* If the lsq resources are already free */
+lsq.hh:583:                gem5::ThreadContext* tc, BaseMMU::Mode mode);
+lsq.hh:588:                gem5::ThreadContext *thread, PacketPtr pkt);
+lsq.hh:606:                gem5::ThreadContext* tc, BaseMMU::Mode mode);
+lsq.hh:648:                gem5::ThreadContext* tc, BaseMMU::Mode mode);
+lsq.hh:655:                gem5::ThreadContext *thread, PacketPtr pkt);
+lsq.hh:669:    /** Sets the pointer to the list of active threads. */
+lsq.hh:670:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+lsq.hh:676:    /** Takes over execution from another CPU's thread. */
+lsq.hh:679:    /** Number of entries needed for the given amount of threads.*/
+lsq.hh:680:    int entryAmount(ThreadID num_threads);
+lsq.hh:697:     * Commits loads up until the given sequence number for a specific thread.
+lsq.hh:699:    void commitLoads(InstSeqNum &youngest_inst, ThreadID tid);
+lsq.hh:702:     * Commits stores up until the given sequence number for a specific thread.
+lsq.hh:704:    void commitStores(InstSeqNum &youngest_inst, ThreadID tid);
+lsq.hh:711:    /** Same as above, but only for one thread. */
+lsq.hh:712:    void writebackStores(ThreadID tid);
+lsq.hh:715:     * Squash instructions from a thread until the specified sequence number.
+lsq.hh:717:    void squash(const InstSeqNum &squashed_num, ThreadID tid);
+lsq.hh:724:     * specific thread.
+lsq.hh:726:    bool violation(ThreadID tid);
+lsq.hh:729:    DynInstPtr getMemDepViolator(ThreadID tid);
+lsq.hh:731:    /** Returns the head index of the load queue for a specific thread. */
+lsq.hh:732:    int getLoadHead(ThreadID tid);
+lsq.hh:735:    InstSeqNum getLoadHeadSeqNum(ThreadID tid);
+lsq.hh:738:    int getStoreHead(ThreadID tid);
+lsq.hh:741:    InstSeqNum getStoreHeadSeqNum(ThreadID tid);
+lsq.hh:745:    /** Returns the number of instructions in the queues of one thread. */
+lsq.hh:746:    int getCount(ThreadID tid);
+lsq.hh:750:    /** Returns the total number of loads for a single thread. */
+lsq.hh:751:    int numLoads(ThreadID tid);
+lsq.hh:755:    /** Returns the total number of stores for a single thread. */
+lsq.hh:756:    int numStores(ThreadID tid);
+lsq.hh:761:    int numHtmStarts(ThreadID tid) const;
+lsq.hh:762:    int numHtmStops(ThreadID tid) const;
+lsq.hh:763:    void resetHtmStartsStops(ThreadID tid);
+lsq.hh:764:    uint64_t getLatestHtmUid(ThreadID tid) const;
+lsq.hh:765:    void setLastRetiredHtmUid(ThreadID tid, uint64_t htmUid);
+lsq.hh:773:    /** Returns the number of free entries for a specific thread. */
+lsq.hh:774:    unsigned numFreeEntries(ThreadID tid);
+lsq.hh:776:    /** Returns the number of free entries in the LQ for a specific thread. */
+lsq.hh:777:    unsigned numFreeLoadEntries(ThreadID tid);
+lsq.hh:779:    /** Returns the number of free entries in the SQ for a specific thread. */
+lsq.hh:780:    unsigned numFreeStoreEntries(ThreadID tid);
+lsq.hh:785:     * Returns if the LSQ is full for a specific thread (either LQ or SQ is
+lsq.hh:788:    bool isFull(ThreadID tid);
+lsq.hh:799:    /** Returns if the LQ of a given thread is full. */
+lsq.hh:800:    bool lqFull(ThreadID tid);
+lsq.hh:804:    /** Returns if the SQ of a given thread is full. */
+lsq.hh:805:    bool sqFull(ThreadID tid);
+lsq.hh:813:     * Returns if the LSQ of a specific thread is stalled due to a memory
+lsq.hh:816:    bool isStalled(ThreadID tid);
+lsq.hh:821:    /** Returns whether or not a specific thread has any stores to write back
+lsq.hh:824:    bool hasStoresToWB(ThreadID tid);
+lsq.hh:826:    /** Returns the number of stores a specific thread has to write back. */
+lsq.hh:827:    int numStoresToWB(ThreadID tid);
+lsq.hh:831:    /** Returns if the LSQ of a specific thread will write back to memory this
+lsq.hh:834:    bool willWB(ThreadID tid);
+lsq.hh:838:    /** Debugging function to print out instructions from a specific thread. */
+lsq.hh:839:    void dumpInsts(ThreadID tid) const;
+lsq.hh:841:    /** Executes a read operation, using the load specified at the load
+lsq.hh:844:    Fault read(LSQRequest* request, ssize_t load_idx);
+lsq.hh:914:    /** Auxiliary function to calculate per-thread max LSQ allocation limit.
+lsq.hh:915:     * Depending on a policy, number of entries and possibly number of threads
+lsq.hh:916:     * and threshold, this function calculates how many resources each thread
+lsq.hh:921:            uint32_t numThreads, uint32_t SMTThreshold)
+lsq.hh:927:            return entries / numThreads;
+lsq.hh:930:            //@todo: Should threads check the max and the total
+lsq.hh:937:    /** List of Active Threads in System. */
+lsq.hh:938:    std::list<ThreadID> *activeThreads;
+lsq.hh:954:    /** The LSQ units for individual threads. */
+lsq.hh:955:    std::vector<LSQUnit> thread;
+lsq.hh:957:    /** Number of Threads. */
+lsq.hh:958:    ThreadID numThreads;
+iew.cc:85:      numThreads(params.numThreads),
+iew.cc:105:    // Setup wire to read instructions coming from issue.
+iew.cc:111:    for (ThreadID tid = 0; tid < MaxThreads; tid++) {
+iew.cc:142:     * an instruction execution completes and it is marked ready to commit.
+iew.cc:198:        .init(cpu->numThreads)
+iew.cc:202:        .init(cpu->numThreads)
+iew.cc:206:        .init(cpu->numThreads)
+iew.cc:210:        .init(cpu->numThreads)
+iew.cc:230:        .init(cpu->numThreads)
+iew.cc:237:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+iew.cc:258:IEW::clearStates(ThreadID tid)
+iew.cc:274:    // Setup wire to read information from time buffer, from commit.
+iew.cc:291:    // Setup wire to read information from rename queue.
+iew.cc:305:IEW::setActiveThreads(std::list<ThreadID> *at_ptr)
+iew.cc:307:    activeThreads = at_ptr;
+iew.cc:309:    ldstQueue.setActiveThreads(at_ptr);
+iew.cc:310:    instQueue.setActiveThreads(at_ptr);
+iew.cc:324:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+iew.cc:371:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+iew.cc:384:IEW::squash(ThreadID tid)
+iew.cc:419:IEW::squashDueToBranch(const DynInstPtr& inst, ThreadID tid)
+iew.cc:443:IEW::squashDueToMemOrder(const DynInstPtr& inst, ThreadID tid)
+iew.cc:469:IEW::block(ThreadID tid)
+iew.cc:487:IEW::unblock(ThreadID tid)
+iew.cc:561:IEW::skidInsert(ThreadID tid)
+iew.cc:586:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+iew.cc:587:    std::list<ThreadID>::iterator end = activeThreads->end();
+iew.cc:589:    while (threads != end) {
+iew.cc:590:        ThreadID tid = *threads++;
+iew.cc:591:        unsigned thread_count = skidBuffer[tid].size();
+iew.cc:592:        if (max < thread_count)
+iew.cc:593:            max = thread_count;
+iew.cc:602:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+iew.cc:603:    std::list<ThreadID>::iterator end = activeThreads->end();
+iew.cc:605:    while (threads != end) {
+iew.cc:606:        ThreadID tid = *threads++;
+iew.cc:620:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+iew.cc:621:    std::list<ThreadID>::iterator end = activeThreads->end();
+iew.cc:623:    while (threads != end) {
+iew.cc:624:        ThreadID tid = *threads++;
+iew.cc:632:    // If there are no ready instructions waiting to be scheduled by the IQ,
+iew.cc:656:IEW::checkStall(ThreadID tid)
+iew.cc:672:IEW::checkSignalsAndUpdate(ThreadID tid)
+iew.cc:739:    for (ThreadID tid = 0; tid < numThreads; tid++)
+iew.cc:743:        insts[fromRename->insts[i]->threadNumber].push(fromRename->insts[i]);
+iew.cc:748:IEW::emptyRenameInsts(ThreadID tid)
+iew.cc:796:IEW::dispatch(ThreadID tid)
+iew.cc:843:IEW::dispatchInsts(ThreadID tid)
+iew.cc:879:                tid, inst->pcState(), inst->seqNum, inst->threadNumber);
+iew.cc:881:        // Be sure to mark these instructions as ready so that the
+iew.cc:1170:             << " TN: " << fromIssue->insts[inst]->threadNumber
+iew.cc:1186:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+iew.cc:1187:    std::list<ThreadID>::iterator end = activeThreads->end();
+iew.cc:1189:    while (threads != end) {
+iew.cc:1190:        ThreadID tid = *threads++;
+iew.cc:1209:                inst->pcState(), inst->threadNumber,inst->seqNum);
+iew.cc:1218:                         " [sn:%llu]\n", inst->pcState(), inst->threadNumber,
+iew.cc:1303:                if (fault != NoFault || !inst->readPredicate() ||
+iew.cc:1322:            // If the instruction has already faulted, then skip executing it.
+iew.cc:1328:                if (!inst->readPredicate())
+iew.cc:1341:        // handle this if there hasn't already been something that
+iew.cc:1347:        ThreadID tid = inst->threadNumber;
+iew.cc:1365:                        tid, inst->seqNum, inst->readPredTarg());
+iew.cc:1374:                if (inst->readPredTaken()) {
+iew.cc:1415:                        "already squashing\n");
+iew.cc:1451:        ThreadID tid = inst->threadNumber;
+iew.cc:1465:        // when it's ready to execute the strictly ordered load.
+iew.cc:1471:                // Mark register as ready if not pinned
+iew.cc:1506:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+iew.cc:1507:    std::list<ThreadID>::iterator end = activeThreads->end();
+iew.cc:1510:    while (threads != end) {
+iew.cc:1511:        ThreadID tid = *threads++;
+iew.cc:1524:        // Have the instruction queue try to schedule any ready instructions.
+iew.cc:1551:    threads = activeThreads->begin();
+iew.cc:1552:    while (threads != end) {
+iew.cc:1553:        ThreadID tid = (*threads++);
+iew.cc:1572:            //DPRINTF(IEW,"NonspecInst from thread %i",tid);
+iew.cc:1622:    ThreadID tid = inst->threadNumber;
+iew.cc:1654:    ThreadID tid = inst->threadNumber;
+iew.cc:1667:                    tid, inst->seqNum, inst->readPredTarg());
+iew.cc:1674:            if (inst->readPredTaken()) {
+thread_state.cc:41:#include "cpu/o3/thread_state.hh"
+thread_state.cc:51:ThreadState::ThreadState(CPU *_cpu, int _thread_num, Process *_process) :
+thread_state.cc:52:    gem5::ThreadState(_cpu, _thread_num, _process),
+thread_state.cc:57:ThreadState::serialize(CheckpointOut &cp) const
+thread_state.cc:59:    gem5::ThreadState::serialize(cp);
+thread_state.cc:60:    // Use the ThreadContext serialization helper to serialize the
+thread_state.cc:66:ThreadState::unserialize(CheckpointIn &cp)
+thread_state.cc:72:    gem5::ThreadState::unserialize(cp);
+thread_state.cc:73:    // Use the ThreadContext serialization helper to unserialize
+BaseO3CPU.py:92:        32, "Fetch queue size in micro-ops per-thread"
+BaseO3CPU.py:176:    smtNumFetchingThreads = Param.Unsigned(1, "SMT Number of Fetching Threads")
+BaseO3CPU.py:191:        TournamentBP(numThreads=Parent.numThreads), "Branch Predictor"
+dyn_inst.cc:62:      _readySrcIdx(arrays.readySrcIdx), macroop(_macroop)
+dyn_inst.cc:64:    std::fill(_readySrcIdx, _readySrcIdx + (numSrcs() + 7) / 8, 0);
+dyn_inst.cc:162:    uintptr_t ready_src_idx =
+dyn_inst.cc:164:    size_t ready_src_idx_size =
+dyn_inst.cc:165:        sizeof(*arrays.readySrcIdx) * ((num_srcs + 7) / 8);
+dyn_inst.cc:168:    size_t total_size = ready_src_idx + ready_src_idx_size;
+dyn_inst.cc:178:    arrays.readySrcIdx = (uint8_t *)(buf + ready_src_idx);
+dyn_inst.cc:185:    new (arrays.readySrcIdx) uint8_t[num_srcs];
+dyn_inst.cc:205:     * explicitly since that's part of the DynInst's buffer and is already
+dyn_inst.cc:218:        _readySrcIdx[i].~uint8_t();
+dyn_inst.cc:289:    cprintf("T%d : %#08d `", threadNumber, pc->instAddr());
+dyn_inst.cc:298:    s << "T" << threadNumber << " : 0x" << pc->instAddr() << " "
+dyn_inst.cc:307:    DPRINTF(IQ, "[sn:%lli] has %d ready out of %d sources. RTI %d)\n",
+dyn_inst.cc:308:            seqNum, readyRegs+1, numSrcRegs(), readyToIssue());
+dyn_inst.cc:309:    if (++readyRegs == numSrcRegs()) {
+dyn_inst.cc:317:    readySrcIdx(src_idx, true);
+dyn_inst.cc:330:    // This inst has been renamed already so it may go through rename
+dyn_inst.cc:354:    bool no_squash_from_TC = thread->noSquashFromTC;
+dyn_inst.cc:355:    thread->noSquashFromTC = true;
+dyn_inst.cc:359:    thread->noSquashFromTC = no_squash_from_TC;
+dyn_inst.cc:371:    bool no_squash_from_TC = thread->noSquashFromTC;
+dyn_inst.cc:372:    thread->noSquashFromTC = true;
+dyn_inst.cc:376:    thread->noSquashFromTC = no_squash_from_TC;
+dyn_inst.cc:388:    bool no_squash_from_TC = thread->noSquashFromTC;
+dyn_inst.cc:389:    thread->noSquashFromTC = true;
+dyn_inst.cc:399:    thread->noSquashFromTC = no_squash_from_TC;
+dyn_inst.cc:407:    cpu->trap(fault, threadNumber, staticInst);
+cpu.hh:65:#include "cpu/o3/thread_state.hh"
+cpu.hh:68:#include "cpu/simple_thread.hh"
+cpu.hh:82:class ThreadContext;
+cpu.hh:90:class ThreadContext;
+cpu.hh:102:    friend class ThreadContext;
+cpu.hh:117:    using PerThreadUnifiedRenameMap =
+cpu.hh:118:        UnifiedRenameMap::PerThreadUnifiedRenameMap;
+cpu.hh:128:    /** The exit event used for terminating all ready-to-exit threads */
+cpu.hh:129:    EventFunctionWrapper threadExitEvent;
+cpu.hh:202:    /** Returns the Number of Active Threads in the CPU */
+cpu.hh:204:    numActiveThreads()
+cpu.hh:206:        return activeThreads.size();
+cpu.hh:209:    /** Add Thread to Active Threads List */
+cpu.hh:210:    void activateThread(ThreadID tid);
+cpu.hh:212:    /** Remove Thread from Active Threads List */
+cpu.hh:213:    void deactivateThread(ThreadID tid);
+cpu.hh:215:    /** Setup CPU to insert a thread's context */
+cpu.hh:216:    void insertThread(ThreadID tid);
+cpu.hh:218:    /** Remove all of a thread's context from CPU */
+cpu.hh:219:    void removeThread(ThreadID tid);
+cpu.hh:227:    /** Add Thread to Active Threads List. */
+cpu.hh:228:    void activateContext(ThreadID tid) override;
+cpu.hh:230:    /** Remove Thread from Active Threads List */
+cpu.hh:231:    void suspendContext(ThreadID tid) override;
+cpu.hh:233:    /** Remove Thread from Active Threads List &&
+cpu.hh:234:     *  Remove Thread Context from CPU.
+cpu.hh:236:    void haltContext(ThreadID tid) override;
+cpu.hh:238:    /** Update The Order In Which We Process Threads. */
+cpu.hh:239:    void updateThreadPriority();
+cpu.hh:244:    void serializeThread(CheckpointOut &cp, ThreadID tid) const override;
+cpu.hh:245:    void unserializeThread(CheckpointIn &cp, ThreadID tid) override;
+cpu.hh:247:    /** Insert tid to the list of threads trying to exit */
+cpu.hh:248:    void addThreadToExitingList(ThreadID tid);
+cpu.hh:250:    /** Is the thread trying to exit? */
+cpu.hh:251:    bool isThreadExiting(ThreadID tid) const;
+cpu.hh:254:     *  If a thread is trying to exit and its corresponding trap event
+cpu.hh:255:     *  has been completed, schedule an event to terminate the thread.
+cpu.hh:257:    void scheduleThreadExitEvent(ThreadID tid);
+cpu.hh:259:    /** Terminate all threads that are ready to exit */
+cpu.hh:260:    void exitThreads();
+cpu.hh:271:     * Commit has reached a safe point to drain a thread.
+cpu.hh:277:    void commitDrained(ThreadID tid);
+cpu.hh:291:    void trap(const Fault &fault, ThreadID tid, const StaticInstPtr &inst);
+cpu.hh:305:    RegVal readMiscRegNoEffect(int misc_reg, ThreadID tid) const;
+cpu.hh:307:    /** Reads a misc. register, including any side effects the read
+cpu.hh:310:    RegVal readMiscReg(int misc_reg, ThreadID tid);
+cpu.hh:313:    void setMiscRegNoEffect(int misc_reg, RegVal val, ThreadID tid);
+cpu.hh:318:    void setMiscReg(int misc_reg, RegVal val, ThreadID tid);
+cpu.hh:320:    RegVal getReg(PhysRegIdPtr phys_reg, ThreadID tid);
+cpu.hh:321:    void getReg(PhysRegIdPtr phys_reg, void *val, ThreadID tid);
+cpu.hh:322:    void *getWritableReg(PhysRegIdPtr phys_reg, ThreadID tid);
+cpu.hh:324:    void setReg(PhysRegIdPtr phys_reg, RegVal val, ThreadID tid);
+cpu.hh:325:    void setReg(PhysRegIdPtr phys_reg, const void *val, ThreadID tid);
+cpu.hh:333:    RegVal getArchReg(const RegId &reg, ThreadID tid);
+cpu.hh:334:    void getArchReg(const RegId &reg, void *val, ThreadID tid);
+cpu.hh:335:    void *getWritableArchReg(const RegId &reg, ThreadID tid);
+cpu.hh:337:    void setArchReg(const RegId &reg, RegVal val, ThreadID tid);
+cpu.hh:338:    void setArchReg(const RegId &reg, const void *val, ThreadID tid);
+cpu.hh:340:    /** Sets the commit PC state of a specific thread. */
+cpu.hh:341:    void pcState(const PCStateBase &new_pc_state, ThreadID tid);
+cpu.hh:343:    /** Reads the commit PC state of a specific thread. */
+cpu.hh:344:    const PCStateBase &pcState(ThreadID tid);
+cpu.hh:347:     * thread.  The source of the squash is an external update of
+cpu.hh:350:    void squashFromTC(ThreadID tid);
+cpu.hh:358:    void instDone(ThreadID tid, const DynInstPtr &inst);
+cpu.hh:367:    void removeInstsNotInROB(ThreadID tid);
+cpu.hh:370:    void removeInstsUntil(const InstSeqNum &seq_num, ThreadID tid);
+cpu.hh:373:    void squashInstIt(const ListIt &instIt, ThreadID tid);
+cpu.hh:430:    PerThreadUnifiedRenameMap renameMap;
+cpu.hh:433:    PerThreadUnifiedRenameMap commitRenameMap;
+cpu.hh:447:    /** Active Threads List */
+cpu.hh:448:    std::list<ThreadID> activeThreads;
+cpu.hh:451:     *  This is a list of threads that are trying to exit. Each thread id
+cpu.hh:452:     *  is mapped to a boolean value denoting whether the thread is ready
+cpu.hh:455:    std::unordered_map<ThreadID, bool> exitingThreads;
+cpu.hh:518:    /** Wakes the CPU, rescheduling the CPU if it's not already active. */
+cpu.hh:521:    virtual void wakeup(ThreadID tid) override;
+cpu.hh:523:    /** Gets a free thread id. Use if thread ids change across system. */
+cpu.hh:524:    ThreadID getFreeTid();
+cpu.hh:527:    /** Returns a pointer to a thread context. */
+cpu.hh:528:    gem5::ThreadContext *
+cpu.hh:529:    tcBase(ThreadID tid)
+cpu.hh:531:        return thread[tid]->getTC();
+cpu.hh:535:    InstSeqNum globalSeqNum;//[MaxThreads];
+cpu.hh:546:    /** Pointers to all of the threads in the CPU. */
+cpu.hh:547:    std::vector<ThreadState *> thread;
+cpu.hh:549:    /** Threads Scheduled to Enter CPU */
+cpu.hh:555:    /** The cycle that the CPU was last activated by a new thread*/
+cpu.hh:558:    /** Mapping for system thread id to cpu id */
+cpu.hh:559:    std::map<ThreadID, unsigned> threadMap;
+cpu.hh:561:    /** Available thread ids in the cpu*/
+cpu.hh:562:    std::vector<ThreadID> tids;
+cpu.hh:605:    void htmSendAbortSignal(ThreadID tid, uint64_t htm_uid,
+store_set.cc:213:StoreSet::insertStore(Addr store_PC, InstSeqNum store_seq_num, ThreadID tid)
+store_set.cc:315:StoreSet::squash(InstSeqNum squashed_num, ThreadID tid)
+store_set.cc:323:    //@todo:Fix to only delete from correct thread
+thread_context.hh:46:#include "cpu/thread_context.hh"
+thread_context.hh:55: * Derived ThreadContext class for use with the O3CPU.  It
+thread_context.hh:57: * single thread's state and some general CPU state.  Any time
+thread_context.hh:62: * not all architectural state is located within the ThreadState
+thread_context.hh:67:class ThreadContext : public gem5::ThreadContext
+thread_context.hh:76:        return thread->pcEventQueue.schedule(e);
+thread_context.hh:81:        return thread->pcEventQueue.remove(e);
+thread_context.hh:87:        thread->comInstEventQueue.schedule(event, count);
+thread_context.hh:92:        thread->comInstEventQueue.deschedule(event);
+thread_context.hh:97:        return thread->comInstEventQueue.getCurTick();
+thread_context.hh:100:    /** Pointer to the thread state that this TC corrseponds to. */
+thread_context.hh:101:    ThreadState *thread;
+thread_context.hh:111:        return cpu->isa[thread->threadId()];
+thread_context.hh:117:        return cpu->fetch.decoder[thread->threadId()];
+thread_context.hh:129:    ContextID contextId() const override { return thread->contextId(); }
+thread_context.hh:131:    void setContextId(ContextID id) override { thread->setContextId(id); }
+thread_context.hh:133:    /** Returns this thread's ID number. */
+thread_context.hh:134:    int threadId() const override { return thread->threadId(); }
+thread_context.hh:135:    void setThreadId(int id) override { return thread->setThreadId(id); }
+thread_context.hh:140:    /** Returns a pointer to this thread's process. */
+thread_context.hh:141:    Process *getProcessPtr() override { return thread->getProcessPtr(); }
+thread_context.hh:143:    void setProcessPtr(Process *p) override { thread->setProcessPtr(p); }
+thread_context.hh:145:    /** Returns this thread's status. */
+thread_context.hh:146:    Status status() const override { return thread->status(); }
+thread_context.hh:148:    /** Sets this thread's status. */
+thread_context.hh:152:        thread->setStatus(new_status);
+thread_context.hh:164:    /** Takes over execution of a thread from another CPU. */
+thread_context.hh:165:    void takeOverFrom(gem5::ThreadContext *old_context) override;
+thread_context.hh:167:    /** Reads the last tick that this thread was activated on. */
+thread_context.hh:168:    Tick readLastActivate() override;
+thread_context.hh:169:    /** Reads the last tick that this thread was suspended on. */
+thread_context.hh:170:    Tick readLastSuspend() override;
+thread_context.hh:173:    void copyArchRegs(gem5::ThreadContext *tc) override;
+thread_context.hh:178:    /** Reads this thread's PC state. */
+thread_context.hh:182:        return cpu->pcState(thread->threadId());
+thread_context.hh:185:    /** Sets this thread's PC state. */
+thread_context.hh:192:    readMiscRegNoEffect(RegIndex misc_reg) const override
+thread_context.hh:194:        return cpu->readMiscRegNoEffect(misc_reg, thread->threadId());
+thread_context.hh:198:     * read might have as defined by the architecture. */
+thread_context.hh:200:    readMiscReg(RegIndex misc_reg) override
+thread_context.hh:202:        return cpu->readMiscReg(misc_reg, thread->threadId());
+thread_context.hh:215:    readStCondFailures() const override
+thread_context.hh:217:        return thread->storeCondFailures;
+thread_context.hh:224:        thread->storeCondFailures = sc_failures;
+thread_context.hh:229:     * similar is currently writing to the thread context and doesn't want
+thread_context.hh:235:        if (!thread->trapPending && !thread->noSquashFromTC)
+thread_context.hh:236:            cpu->squashFromTC(thread->threadId());
+mem_dep_unit.cc:69:    for (ThreadID tid = 0; tid < MaxThreads; tid++) {
+mem_dep_unit.cc:92:MemDepUnit::init(const BaseO3CPUParams &params, ThreadID tid, CPU *cpu)
+mem_dep_unit.cc:125:    for (int i = 0; i < MaxThreads; ++i)
+mem_dep_unit.cc:136:    for (int i = 0; i < MaxThreads; ++i)
+mem_dep_unit.cc:172:            barrier_type = "read";
+mem_dep_unit.cc:192:    ThreadID tid = inst->threadNumber;
+mem_dep_unit.cc:243:    // are ready.
+mem_dep_unit.cc:250:        if (inst->readyToIssue()) {
+mem_dep_unit.cc:262:        if (inst->readyToIssue()) {
+mem_dep_unit.cc:290:                inst->threadNumber);
+mem_dep_unit.cc:312:                inst->threadNumber);
+mem_dep_unit.cc:325:    ThreadID tid = barr_inst->threadNumber;
+mem_dep_unit.cc:347:    DPRINTF(MemDepUnit, "Marking registers as ready for "
+mem_dep_unit.cc:357:                "dependencies resolved, adding it to the ready list.\n");
+mem_dep_unit.cc:370:            "instruction PC %s as ready [sn:%lli].\n",
+mem_dep_unit.cc:410:    ThreadID tid = inst->threadNumber;
+mem_dep_unit.cc:521:MemDepUnit::squash(const InstSeqNum &squashed_num, ThreadID tid)
+mem_dep_unit.cc:526:            if ((*replay_it)->threadNumber == tid &&
+mem_dep_unit.cc:605:            "to the ready list.\n", woken_inst_entry->inst->seqNum);
+mem_dep_unit.cc:616:    for (ThreadID tid = 0; tid < MaxThreads; tid++) {
+mem_dep_unit.cc:628:                    (*inst_list_it)->threadNumber,
+checker.hh:64:        fatal_if(p.max_insts_any_thread || p.max_insts_all_threads ||
+limits.hh:38:static constexpr int MaxThreads = 4;
+dyn_inst.hh:94:        uint8_t *readySrcIdx;
+dyn_inst.hh:134:    /** Pointer to the thread state. */
+dyn_inst.hh:135:    ThreadState *thread = nullptr;
+dyn_inst.hh:166:        ThreadsyncWait,          /// Is a thread synchronization instruction
+dyn_inst.hh:238:    // Whether or not the source register is ready, one bit per register.
+dyn_inst.hh:239:    uint8_t *_readySrcIdx;
+dyn_inst.hh:305:    readySrcIdx(int idx) const
+dyn_inst.hh:307:        uint8_t &byte = _readySrcIdx[idx / 8];
+dyn_inst.hh:312:    readySrcIdx(int idx, bool ready)
+dyn_inst.hh:314:        uint8_t &byte = _readySrcIdx[idx / 8];
+dyn_inst.hh:315:        replaceBits(byte, idx % 8, ready ? 1 : 0);
+dyn_inst.hh:318:    /** The thread this instruction is from. */
+dyn_inst.hh:319:    ThreadID threadNumber = 0;
+dyn_inst.hh:331:    /** How many source registers are ready. */
+dyn_inst.hh:332:    uint8_t readyRegs = 0;
+dyn_inst.hh:476:     *  @todo: add in whether or not the source register is ready.
+dyn_inst.hh:500:    ContextID contextId() const { return thread->contextId(); }
+dyn_inst.hh:518:    const PCStateBase &readPredTarg() { return *predPC; }
+dyn_inst.hh:521:    bool readPredTaken() { return instFlags[PredTaken]; }
+dyn_inst.hh:726:    /** Records that one of the source registers is ready. */
+dyn_inst.hh:729:    /** Marks a specific register as ready. */
+dyn_inst.hh:738:    /** Marks the result as ready. */
+dyn_inst.hh:741:    /** Returns whether or not the result is ready. */
+dyn_inst.hh:744:    /** Sets this instruction as ready to issue. */
+dyn_inst.hh:747:    /** Returns whether or not this instruction is ready to issue. */
+dyn_inst.hh:748:    bool readyToIssue() const { return status[CanIssue]; }
+dyn_inst.hh:768:    /** Sets this instruction as ready to commit. */
+dyn_inst.hh:771:    /** Clears this instruction as being ready to commit. */
+dyn_inst.hh:774:    /** Returns whether or not this instruction is ready to commit. */
+dyn_inst.hh:775:    bool readyToCommit() const { return status[CanCommit]; }
+dyn_inst.hh:905:    bool readPredicate() const override { return instFlags[Predicate]; }
+dyn_inst.hh:918:    readMemAccPredicate() const override
+dyn_inst.hh:929:    /** Sets the thread id. */
+dyn_inst.hh:930:    void setTid(ThreadID tid) { threadNumber = tid; }
+dyn_inst.hh:932:    /** Sets the pointer to the thread state. */
+dyn_inst.hh:933:    void setThreadState(ThreadState *state) { thread = state; }
+dyn_inst.hh:935:    /** Returns the thread context. */
+dyn_inst.hh:936:    gem5::ThreadContext *tcBase() const override { return thread->getTC(); }
+dyn_inst.hh:957:    readStCondFailures() const override
+dyn_inst.hh:959:        return thread->storeCondFailures;
+dyn_inst.hh:966:        thread->storeCondFailures = sc_failures;
+dyn_inst.hh:974:        cpu->armMonitor(threadNumber, address);
+dyn_inst.hh:979:        return cpu->mwait(threadNumber, pkt);
+dyn_inst.hh:982:    mwaitAtomic(gem5::ThreadContext *tc) override
+dyn_inst.hh:984:        return cpu->mwaitAtomic(threadNumber, tc, cpu->mmu);
+dyn_inst.hh:989:        return cpu->getCpuAddrMonitor(threadNumber);
+dyn_inst.hh:1016:    /** Reads a misc. register, including any side-effects the read
+dyn_inst.hh:1020:    readMiscReg(int misc_reg) override
+dyn_inst.hh:1022:        return cpu->readMiscReg(misc_reg, threadNumber);
+dyn_inst.hh:1046:    /** Reads a misc. register, including any side-effects the read
+dyn_inst.hh:1050:    readMiscRegOperand(const StaticInst *si, int idx) override
+dyn_inst.hh:1054:        return cpu->readMiscReg(reg.index(), threadNumber);
+dyn_inst.hh:1076:        bool no_squash_from_TC = thread->noSquashFromTC;
+dyn_inst.hh:1077:        thread->noSquashFromTC = true;
+dyn_inst.hh:1081:                _destMiscRegIdx[i], _destMiscRegVal[i], threadNumber);
+dyn_inst.hh:1083:        thread->noSquashFromTC = no_squash_from_TC;
+dyn_inst.hh:1101:                        cpu->getReg(prev_phys_reg, threadNumber));
+dyn_inst.hh:1104:                cpu->getReg(prev_phys_reg, val, threadNumber);
+dyn_inst.hh:1131:        return cpu->getReg(reg, threadNumber);
+dyn_inst.hh:1140:        cpu->getReg(reg, val, threadNumber);
+dyn_inst.hh:1146:        return cpu->getWritableReg(renamedDestIdx(idx), threadNumber);
+dyn_inst.hh:1158:        cpu->setReg(reg, val, threadNumber);
+dyn_inst.hh:1168:        cpu->setReg(reg, val, threadNumber);
+rename.hh:67: * Rename handles both single threaded and SMT rename. Its
+rename.hh:97:    /** Individual thread status. */
+rename.hh:98:    enum ThreadStatus
+rename.hh:113:    /** Per-thread status. */
+rename.hh:114:    ThreadStatus renameStatus[MaxThreads];
+rename.hh:166:    /** Clear all thread-specific states */
+rename.hh:167:    void clearStates(ThreadID tid);
+rename.hh:169:    /** Sets pointer to list of active threads. */
+rename.hh:170:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+rename.hh:172:    /** Sets pointer to rename maps (per-thread structures). */
+rename.hh:173:    void setRenameMap(UnifiedRenameMap::PerThreadUnifiedRenameMap& rm_ptr);
+rename.hh:187:    /** Takes over from another CPU's thread. */
+rename.hh:190:    /** Squashes all instructions in a thread. */
+rename.hh:191:    void squash(const InstSeqNum &squash_seq_num, ThreadID tid);
+rename.hh:208:     * @param tid Thread id to rename instructions from.
+rename.hh:210:    void rename(bool &status_change, ThreadID tid);
+rename.hh:212:    /** Renames instructions for the given thread. Also handles serializing
+rename.hh:215:    void renameInsts(ThreadID tid);
+rename.hh:217:    /** Inserts unused instructions from a given thread into the skid buffer,
+rename.hh:220:    void skidInsert(ThreadID tid);
+rename.hh:223:     * sorted by thread.
+rename.hh:230:    /** Updates overall rename status based on all of the threads' statuses. */
+rename.hh:237:    bool block(ThreadID tid);
+rename.hh:243:    bool unblock(ThreadID tid);
+rename.hh:246:    void doSquash(const InstSeqNum &squash_seq_num, ThreadID tid);
+rename.hh:249:    void removeFromHistory(InstSeqNum inst_seq_num, ThreadID tid);
+rename.hh:252:    void renameSrcRegs(const DynInstPtr &inst, ThreadID tid);
+rename.hh:255:    void renameDestRegs(const DynInstPtr &inst, ThreadID tid);
+rename.hh:257:    /** Calculates the number of free ROB entries for a specific thread. */
+rename.hh:258:    int calcFreeROBEntries(ThreadID tid);
+rename.hh:260:    /** Calculates the number of free IQ entries for a specific thread. */
+rename.hh:261:    int calcFreeIQEntries(ThreadID tid);
+rename.hh:263:    /** Calculates the number of free LQ entries for a specific thread. */
+rename.hh:264:    int calcFreeLQEntries(ThreadID tid);
+rename.hh:266:    /** Calculates the number of free SQ entries for a specific thread. */
+rename.hh:267:    int calcFreeSQEntries(ThreadID tid);
+rename.hh:273:    void readStallSignals(ThreadID tid);
+rename.hh:276:    bool checkStall(ThreadID tid);
+rename.hh:278:    /** Gets the number of free entries for a specific thread. */
+rename.hh:279:    void readFreeEntries(ThreadID tid);
+rename.hh:282:    bool checkSignalsAndUpdate(ThreadID tid);
+rename.hh:288:     * thread that has the serializeAfter instruction.
+rename.hh:289:     * @param tid The thread id.
+rename.hh:291:    void serializeAfter(InstQueue &inst_list, ThreadID tid);
+rename.hh:318:    /** A per-thread list of all destination register renames, used to either
+rename.hh:321:    std::list<RenameHistory> historyBuffer[MaxThreads];
+rename.hh:351:    InstQueue insts[MaxThreads];
+rename.hh:354:    InstQueue skidBuffer[MaxThreads];
+rename.hh:357:    UnifiedRenameMap *renameMap[MaxThreads];
+rename.hh:363:    std::vector<PhysRegIdPtr> freeingInProgress[MaxThreads];
+rename.hh:365:    /** Pointer to the list of active threads. */
+rename.hh:366:    std::list<ThreadID> *activeThreads;
+rename.hh:374:    int instsInProgress[MaxThreads];
+rename.hh:379:    int loadsInProgress[MaxThreads];
+rename.hh:384:    int storesInProgress[MaxThreads];
+rename.hh:402:    /** Per-thread tracking of the number of free entries of back-end
+rename.hh:405:    FreeEntries freeEntries[MaxThreads];
+rename.hh:408:     * partitioned between threads, so the ROB must tell rename when it is
+rename.hh:411:    bool emptyROB[MaxThreads];
+rename.hh:421:    Stalls stalls[MaxThreads];
+rename.hh:424:    DynInstPtr serializeInst[MaxThreads];
+rename.hh:427:     * thread.
+rename.hh:429:    bool serializeOnNextInst[MaxThreads];
+rename.hh:459:    /** The number of threads active in rename. */
+rename.hh:460:    ThreadID numThreads;
+cpu.cc:47:#include "cpu/checker/thread_context.hh"
+cpu.cc:50:#include "cpu/o3/thread_context.hh"
+cpu.cc:51:#include "cpu/simple_thread.hh"
+cpu.cc:52:#include "cpu/thread_context.hh"
+cpu.cc:77:      threadExitEvent([this]{ exitThreads(); }, "O3CPU exit threads",
+cpu.cc:112:      isa(numThreads, NULL),
+cpu.cc:128:    fatal_if(FullSystem && params.numThreads > 1,
+cpu.cc:131:    fatal_if(!FullSystem && params.numThreads < params.workload.size(),
+cpu.cc:132:            "More workload items (%d) than threads (%d) on CPU %s.",
+cpu.cc:133:            params.workload.size(), params.numThreads, name());
+cpu.cc:151:        thread.resize(numThreads);
+cpu.cc:152:        tids.resize(numThreads);
+cpu.cc:159:    // Set up Pointers to the activeThreads list for each stage
+cpu.cc:160:    fetch.setActiveThreads(&activeThreads);
+cpu.cc:161:    decode.setActiveThreads(&activeThreads);
+cpu.cc:162:    rename.setActiveThreads(&activeThreads);
+cpu.cc:163:    iew.setActiveThreads(&activeThreads);
+cpu.cc:164:    commit.setActiveThreads(&activeThreads);
+cpu.cc:189:    ThreadID active_threads;
+cpu.cc:191:        active_threads = 1;
+cpu.cc:193:        active_threads = params.workload.size();
+cpu.cc:195:        if (active_threads > MaxThreads) {
+cpu.cc:196:            panic("Workload Size too large. Increase the 'MaxThreads' "
+cpu.cc:202:    assert(numThreads);
+cpu.cc:206:            numThreads * regClasses.at(IntRegClass)->numRegs() &&
+cpu.cc:211:            numThreads * regClasses.at(FloatRegClass)->numRegs() &&
+cpu.cc:216:            numThreads * regClasses.at(VecRegClass)->numRegs() &&
+cpu.cc:221:            numThreads * regClasses.at(VecPredRegClass)->numRegs() &&
+cpu.cc:226:            numThreads * regClasses.at(MatRegClass)->numRegs() &&
+cpu.cc:231:            numThreads * regClasses.at(CCRegClass)->numRegs() &&
+cpu.cc:247:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+cpu.cc:254:    // architectural registers for active threads only.
+cpu.cc:255:    for (ThreadID tid = 0; tid < active_threads; tid++) {
+cpu.cc:284:    // Setup any thread state.
+cpu.cc:285:    thread.resize(numThreads);
+cpu.cc:287:    for (ThreadID tid = 0; tid < numThreads; ++tid) {
+cpu.cc:290:            assert(numThreads == 1);
+cpu.cc:291:            thread[tid] = new ThreadState(this, 0, NULL);
+cpu.cc:295:                        thread[tid]);
+cpu.cc:296:                thread[tid] = new ThreadState(this, tid, params.workload[tid]);
+cpu.cc:298:                //Allocate Empty thread so M5 can use later
+cpu.cc:299:                //when scheduling threads to CPU
+cpu.cc:302:                thread[tid] = new ThreadState(this, tid, dummy_proc);
+cpu.cc:306:        gem5::ThreadContext *tc;
+cpu.cc:308:        // Setup the TC that will serve as the interface to the threads/CPU.
+cpu.cc:309:        auto *o3_tc = new ThreadContext;
+cpu.cc:314:        // CheckerThreadContext.
+cpu.cc:316:            tc = new CheckerThreadContext<ThreadContext>(o3_tc, checker);
+cpu.cc:320:        o3_tc->thread = thread[tid];
+cpu.cc:322:        // Give the thread the TC.
+cpu.cc:323:        thread[tid]->tc = tc;
+cpu.cc:326:        threadContexts.push_back(tc);
+cpu.cc:429:        updateThreadPriority();
+cpu.cc:439:    for (ThreadID tid = 0; tid < numThreads; ++tid) {
+cpu.cc:442:        thread[tid]->noSquashFromTC = true;
+cpu.cc:446:    for (int tid = 0; tid < numThreads; ++tid)
+cpu.cc:447:        thread[tid]->noSquashFromTC = false;
+cpu.cc:449:    commit.setThreads(thread);
+cpu.cc:465:CPU::activateThread(ThreadID tid)
+cpu.cc:467:    std::list<ThreadID>::iterator isActive =
+cpu.cc:468:        std::find(activeThreads.begin(), activeThreads.end(), tid);
+cpu.cc:470:    DPRINTF(O3CPU, "[tid:%i] Calling activate thread.\n", tid);
+cpu.cc:473:    if (isActive == activeThreads.end()) {
+cpu.cc:474:        DPRINTF(O3CPU, "[tid:%i] Adding to active threads list\n", tid);
+cpu.cc:476:        activeThreads.push_back(tid);
+cpu.cc:481:CPU::deactivateThread(ThreadID tid)
+cpu.cc:484:    // shouldn't deactivate thread in the middle of a transaction
+cpu.cc:488:    std::list<ThreadID>::iterator thread_it =
+cpu.cc:489:        std::find(activeThreads.begin(), activeThreads.end(), tid);
+cpu.cc:491:    DPRINTF(O3CPU, "[tid:%i] Calling deactivate thread.\n", tid);
+cpu.cc:494:    if (thread_it != activeThreads.end()) {
+cpu.cc:495:        DPRINTF(O3CPU,"[tid:%i] Removing from active threads list\n",
+cpu.cc:497:        activeThreads.erase(thread_it);
+cpu.cc:500:    fetch.deactivateThread(tid);
+cpu.cc:501:    commit.deactivateThread(tid);
+cpu.cc:509:    ThreadID size = thread.size();
+cpu.cc:510:    for (ThreadID i = 0; i < size; i++)
+cpu.cc:511:        total += thread[i]->numInst;
+cpu.cc:521:    ThreadID size = thread.size();
+cpu.cc:522:    for (ThreadID i = 0; i < size; i++)
+cpu.cc:523:        total += thread[i]->numOp;
+cpu.cc:529:CPU::activateContext(ThreadID tid)
+cpu.cc:534:    activateThread(tid);
+cpu.cc:537:    // we just want to flag the thread as active and schedule the tick
+cpu.cc:567:CPU::suspendContext(ThreadID tid)
+cpu.cc:569:    DPRINTF(O3CPU,"[tid:%i] Suspending Thread Context.\n", tid);
+cpu.cc:572:    deactivateThread(tid);
+cpu.cc:574:    // If this was the last thread then unschedule the tick event.
+cpu.cc:575:    if (activeThreads.size() == 0) {
+cpu.cc:587:CPU::haltContext(ThreadID tid)
+cpu.cc:593:    deactivateThread(tid);
+cpu.cc:594:    removeThread(tid);
+cpu.cc:596:    // If this was the last thread then unschedule the tick event.
+cpu.cc:597:    if (activeThreads.size() == 0) {
+cpu.cc:609:CPU::insertThread(ThreadID tid)
+cpu.cc:611:    DPRINTF(O3CPU,"[tid:%i] Initializing thread into CPU");
+cpu.cc:612:    // Will change now that the PC and thread state is internal to the CPU
+cpu.cc:613:    // and not in the ThreadContext.
+cpu.cc:614:    gem5::ThreadContext *src_tc;
+cpu.cc:616:        src_tc = system->threads[tid];
+cpu.cc:632:    //Copy Thread Data Into RegFile
+cpu.cc:638:    src_tc->setStatus(gem5::ThreadContext::Active);
+cpu.cc:647:CPU::removeThread(ThreadID tid)
+cpu.cc:649:    DPRINTF(O3CPU,"[tid:%i] Removing thread context from CPU.\n", tid);
+cpu.cc:651:    // Copy Thread Data From RegFile
+cpu.cc:652:    // If thread is suspended, it might be re-allocated
+cpu.cc:660:    // clear all thread-specific states in each stage of the pipeline
+cpu.cc:661:    // since this thread is going to be completely removed from the CPU
+cpu.cc:677:    // at this step, all instructions in the pipeline should be already
+cpu.cc:678:    // either committed successfully or squashed. All thread-specific
+cpu.cc:691:    if (activeThreads.size() >= 1) {
+cpu.cc:709:    // exists within isa_fullsys_traits.hh.  Also assume that thread 0
+cpu.cc:712:    // @todo: Allow other threads to handle interrupts.
+cpu.cc:722:CPU::trap(const Fault &fault, ThreadID tid, const StaticInstPtr &inst)
+cpu.cc:724:    // Pass the thread's TC into the invoke method.
+cpu.cc:725:    fault->invoke(threadContexts[tid], inst);
+cpu.cc:729:CPU::serializeThread(CheckpointOut &cp, ThreadID tid) const
+cpu.cc:731:    thread[tid]->serialize(cp);
+cpu.cc:735:CPU::unserializeThread(CheckpointIn &cp, ThreadID tid)
+cpu.cc:737:    thread[tid]->unserialize(cp);
+cpu.cc:763:        // If a thread is suspended, wake it up so it can be drained
+cpu.cc:764:        for (auto t : threadContexts) {
+cpu.cc:765:            if (t->status() == gem5::ThreadContext::Suspended){
+cpu.cc:767:                        t->threadId());
+cpu.cc:769:                // As the thread is now active, change the power state as well
+cpu.cc:770:                activateContext(t->threadId());
+cpu.cc:781:        DPRINTF(Drain, "CPU is already drained\n");
+cpu.cc:866:void CPU::commitDrained(ThreadID tid) { fetch.drainStall(tid); }
+cpu.cc:881:    for (ThreadID i = 0; i < thread.size(); i++) {
+cpu.cc:882:        if (thread[i]->status() == gem5::ThreadContext::Active) {
+cpu.cc:883:            DPRINTF(Drain, "Activating thread: %i\n", i);
+cpu.cc:884:            activateThread(i);
+cpu.cc:942:CPU::readMiscRegNoEffect(int misc_reg, ThreadID tid) const
+cpu.cc:944:    return isa[tid]->readMiscRegNoEffect(misc_reg);
+cpu.cc:948:CPU::readMiscReg(int misc_reg, ThreadID tid)
+cpu.cc:951:    return isa[tid]->readMiscReg(misc_reg);
+cpu.cc:955:CPU::setMiscRegNoEffect(int misc_reg, RegVal val, ThreadID tid)
+cpu.cc:961:CPU::setMiscReg(int misc_reg, RegVal val, ThreadID tid)
+cpu.cc:968:CPU::getReg(PhysRegIdPtr phys_reg, ThreadID tid)
+cpu.cc:994:CPU::getReg(PhysRegIdPtr phys_reg, void *val, ThreadID tid)
+cpu.cc:1020:CPU::getWritableReg(PhysRegIdPtr phys_reg, ThreadID tid)
+cpu.cc:1036:CPU::setReg(PhysRegIdPtr phys_reg, RegVal val, ThreadID tid)
+cpu.cc:1062:CPU::setReg(PhysRegIdPtr phys_reg, const void *val, ThreadID tid)
+cpu.cc:1088:CPU::getArchReg(const RegId &reg, ThreadID tid)
+cpu.cc:1096:CPU::getArchReg(const RegId &reg, void *val, ThreadID tid)
+cpu.cc:1104:CPU::getWritableArchReg(const RegId &reg, ThreadID tid)
+cpu.cc:1112:CPU::setArchReg(const RegId &reg, RegVal val, ThreadID tid)
+cpu.cc:1120:CPU::setArchReg(const RegId &reg, const void *val, ThreadID tid)
+cpu.cc:1128:CPU::pcState(ThreadID tid)
+cpu.cc:1134:CPU::pcState(const PCStateBase &val, ThreadID tid)
+cpu.cc:1140:CPU::squashFromTC(ThreadID tid)
+cpu.cc:1142:    thread[tid]->noSquashFromTC = true;
+cpu.cc:1155:CPU::instDone(ThreadID tid, const DynInstPtr &inst)
+cpu.cc:1159:        thread[tid]->numInst++;
+cpu.cc:1160:        thread[tid]->threadStats.numInsts++;
+cpu.cc:1164:        thread[tid]->comInstEventQueue.serviceEvents(thread[tid]->numInst);
+cpu.cc:1166:    thread[tid]->numOp++;
+cpu.cc:1167:    thread[tid]->threadStats.numOps++;
+cpu.cc:1178:            inst->threadNumber, inst->pcState(), inst->seqNum);
+cpu.cc:1187:CPU::removeInstsNotInROB(ThreadID tid)
+cpu.cc:1189:    DPRINTF(O3CPU, "Thread %i: Deleting instructions from instruction"
+cpu.cc:1203:        end_it = (rob.readTailInst(tid))->getInstListIt();
+cpu.cc:1231:CPU::removeInstsUntil(const InstSeqNum &seq_num, ThreadID tid)
+cpu.cc:1259:CPU::squashInstIt(const ListIt &instIt, ThreadID tid)
+cpu.cc:1261:    if ((*instIt)->threadNumber == tid) {
+cpu.cc:1264:                (*instIt)->threadNumber,
+cpu.cc:1284:                (*removeList.front())->threadNumber,
+cpu.cc:1315:                (*inst_list_it)->threadNumber,
+cpu.cc:1333:        DPRINTF(Activity, "CPU already running.\n");
+cpu.cc:1351:CPU::wakeup(ThreadID tid)
+cpu.cc:1353:    if (thread[tid]->status() != gem5::ThreadContext::Suspended)
+cpu.cc:1359:    threadContexts[tid]->activate();
+cpu.cc:1362:ThreadID
+cpu.cc:1365:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+cpu.cc:1372:    return InvalidThreadID;
+cpu.cc:1376:CPU::updateThreadPriority()
+cpu.cc:1378:    if (activeThreads.size() > 1) {
+cpu.cc:1380:        //e.g. Move highest priority to end of thread list
+cpu.cc:1381:        std::list<ThreadID>::iterator list_begin = activeThreads.begin();
+cpu.cc:1383:        unsigned high_thread = *list_begin;
+cpu.cc:1385:        activeThreads.erase(list_begin);
+cpu.cc:1387:        activeThreads.push_back(high_thread);
+cpu.cc:1392:CPU::addThreadToExitingList(ThreadID tid)
+cpu.cc:1394:    DPRINTF(O3CPU, "Thread %d is inserted to exitingThreads list\n", tid);
+cpu.cc:1396:    // the thread trying to exit can't be already halted
+cpu.cc:1397:    assert(tcBase(tid)->status() != gem5::ThreadContext::Halted);
+cpu.cc:1399:    // make sure the thread has not been added to the list yet
+cpu.cc:1400:    assert(exitingThreads.count(tid) == 0);
+cpu.cc:1402:    // add the thread to exitingThreads list to mark that this thread is
+cpu.cc:1403:    // trying to exit. The boolean value in the pair denotes if a thread is
+cpu.cc:1404:    // ready to exit. The thread is not ready to exit until the corresponding
+cpu.cc:1406:    // an active thread that is trying to exit.
+cpu.cc:1407:    exitingThreads.emplace(std::make_pair(tid, false));
+cpu.cc:1411:CPU::isThreadExiting(ThreadID tid) const
+cpu.cc:1413:    return exitingThreads.count(tid) == 1;
+cpu.cc:1417:CPU::scheduleThreadExitEvent(ThreadID tid)
+cpu.cc:1419:    assert(exitingThreads.count(tid) == 1);
+cpu.cc:1421:    // exit trap event has been processed. Now, the thread is ready to exit
+cpu.cc:1423:    exitingThreads[tid] = true;
+cpu.cc:1425:    // we schedule a threadExitEvent in the next cycle to properly clean
+cpu.cc:1426:    // up the thread's states in the pipeline. threadExitEvent has lower
+cpu.cc:1431:    if (!threadExitEvent.scheduled()) {
+cpu.cc:1432:        schedule(threadExitEvent, nextCycle());
+cpu.cc:1437:CPU::exitThreads()
+cpu.cc:1439:    // there must be at least one thread trying to exit
+cpu.cc:1440:    assert(exitingThreads.size() > 0);
+cpu.cc:1442:    // terminate all threads that are ready to exit
+cpu.cc:1443:    auto it = exitingThreads.begin();
+cpu.cc:1444:    while (it != exitingThreads.end()) {
+cpu.cc:1445:        ThreadID thread_id = it->first;
+cpu.cc:1446:        bool readyToExit = it->second;
+cpu.cc:1448:        if (readyToExit) {
+cpu.cc:1449:            DPRINTF(O3CPU, "Exiting thread %d\n", thread_id);
+cpu.cc:1450:            haltContext(thread_id);
+cpu.cc:1451:            tcBase(thread_id)->setStatus(gem5::ThreadContext::Halted);
+cpu.cc:1452:            it = exitingThreads.erase(it);
+cpu.cc:1460:CPU::htmSendAbortSignal(ThreadID tid, uint64_t htm_uid,
+cpu.cc:1477:    req->setContext(thread[tid]->contextId());
+rob.cc:65:      numThreads(params.numThreads),
+rob.cc:73:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+rob.cc:81:        int part_amt = numEntries / numThreads;
+rob.cc:84:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+rob.cc:94:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+rob.cc:99:    for (ThreadID tid = numThreads; tid < MaxThreads; tid++) {
+rob.cc:103:    // for (ThreadID tid = 0; tid < params.numThreads; tid++) {
+rob.cc:114:    for (ThreadID tid = 0; tid  < MaxThreads; tid++) {
+rob.cc:115:        threadEntries[tid] = 0;
+rob.cc:135:ROB::setActiveThreads(std::list<ThreadID> *at_ptr)
+rob.cc:137:    DPRINTF(ROB, "Setting active threads list pointer.\n");
+rob.cc:138:    activeThreads = at_ptr;
+rob.cc:144:    for (ThreadID tid = 0; tid  < numThreads; tid++)
+rob.cc:158:    if (robPolicy != SMTQueuePolicy::Dynamic || numThreads > 1) {
+rob.cc:159:        auto active_threads = activeThreads->size();
+rob.cc:161:        std::list<ThreadID>::iterator threads = activeThreads->begin();
+rob.cc:162:        std::list<ThreadID>::iterator end = activeThreads->end();
+rob.cc:164:        while (threads != end) {
+rob.cc:165:            ThreadID tid = *threads++;
+rob.cc:168:                maxEntries[tid] = numEntries / active_threads;
+rob.cc:170:                       active_threads == 1) {
+rob.cc:178:ROB::entryAmount(ThreadID num_threads)
+rob.cc:181:        return numEntries / num_threads;
+rob.cc:192:    for (ThreadID tid = 0; tid < numThreads; tid++)
+rob.cc:199:ROB::countInsts(ThreadID tid)
+rob.cc:215:    ThreadID tid = inst->threadNumber;
+rob.cc:233:    ++threadEntries[tid];
+rob.cc:238:            threadEntries[tid]);
+rob.cc:243:ROB::retireHead(ThreadID tid)
+rob.cc:255:    assert(head_inst->readyToCommit());
+rob.cc:266:    //     auto &thread_rpt = rpts[tid]; 
+rob.cc:268:    //         thread_rpt.processRequest((uint64_t) pc, addr);
+rob.cc:281:    --threadEntries[tid];
+rob.cc:296:ROB::isHeadReady(ThreadID tid)
+rob.cc:298:    stats.reads++;
+rob.cc:299:    if (threadEntries[tid] != 0) {
+rob.cc:300:        return instList[tid].front()->readyToCommit();
+rob.cc:309:    //@todo: set ActiveThreads through ROB or CPU
+rob.cc:310:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+rob.cc:311:    std::list<ThreadID>::iterator end = activeThreads->end();
+rob.cc:313:    while (threads != end) {
+rob.cc:314:        ThreadID tid = *threads++;
+rob.cc:331:ROB::numFreeEntries(ThreadID tid)
+rob.cc:333:    return maxEntries[tid] - threadEntries[tid];
+rob.cc:337:ROB::doSquash(ThreadID tid)
+rob.cc:362:    if (cpu->isThreadExiting(tid))
+rob.cc:374:                (*squashIt[tid])->threadNumber,
+rob.cc:378:        // Mark the instruction as squashed, and ready to commit so that
+rob.cc:396:        InstIt tail_thread = instList[tid].end();
+rob.cc:397:        tail_thread--;
+rob.cc:399:        if ((*squashIt[tid]) == (*tail_thread))
+rob.cc:428:    // @todo: set ActiveThreads through ROB or CPU
+rob.cc:429:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+rob.cc:430:    std::list<ThreadID>::iterator end = activeThreads->end();
+rob.cc:432:    while (threads != end) {
+rob.cc:433:        ThreadID tid = *threads++;
+rob.cc:445:        InstIt head_thread = instList[tid].begin();
+rob.cc:447:        DynInstPtr head_inst = (*head_thread);
+rob.cc:452:            head = head_thread;
+rob.cc:469:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+rob.cc:470:    std::list<ThreadID>::iterator end = activeThreads->end();
+rob.cc:472:    while (threads != end) {
+rob.cc:473:        ThreadID tid = *threads++;
+rob.cc:488:        // Assign new tail if this thread's tail is younger
+rob.cc:490:        InstIt tail_thread = instList[tid].end();
+rob.cc:491:        tail_thread--;
+rob.cc:493:        if ((*tail_thread)->seqNum > (*tail)->seqNum) {
+rob.cc:494:            tail = tail_thread;
+rob.cc:501:ROB::squash(InstSeqNum squash_num, ThreadID tid)
+rob.cc:520:        InstIt tail_thread = instList[tid].end();
+rob.cc:521:        tail_thread--;
+rob.cc:523:        squashIt[tid] = tail_thread;
+rob.cc:530:ROB::readHeadInst(ThreadID tid)
+rob.cc:532:    if (threadEntries[tid] != 0) {
+rob.cc:533:        InstIt head_thread = instList[tid].begin();
+rob.cc:535:        assert((*head_thread)->isInROB());
+rob.cc:537:        return *head_thread;
+rob.cc:544:ROB::readTailInst(ThreadID tid)
+rob.cc:546:    InstIt tail_thread = instList[tid].end();
+rob.cc:547:    tail_thread--;
+rob.cc:549:    return *tail_thread;
+rob.cc:554:    ADD_STAT(reads, statistics::units::Count::get(),
+rob.cc:555:        "The number of ROB reads"),
+rob.cc:562:ROB::findInst(ThreadID tid, InstSeqNum squash_inst)
+thread_context.cc:42:#include "cpu/o3/thread_context.hh"
+thread_context.cc:53:ThreadContext::takeOverFrom(gem5::ThreadContext *old_context)
+thread_context.cc:63:    thread->noSquashFromTC = false;
+thread_context.cc:64:    thread->trapPending = false;
+thread_context.cc:68:ThreadContext::activate()
+thread_context.cc:70:    DPRINTF(O3CPU, "Calling activate on Thread Context %d\n",
+thread_context.cc:71:            threadId());
+thread_context.cc:73:    if (thread->status() == gem5::ThreadContext::Active)
+thread_context.cc:76:    thread->lastActivate = curTick();
+thread_context.cc:77:    thread->setStatus(gem5::ThreadContext::Active);
+thread_context.cc:80:    cpu->activateContext(thread->threadId());
+thread_context.cc:84:ThreadContext::suspend()
+thread_context.cc:86:    DPRINTF(O3CPU, "Calling suspend on Thread Context %d\n",
+thread_context.cc:87:            threadId());
+thread_context.cc:89:    if (thread->status() == gem5::ThreadContext::Suspended)
+thread_context.cc:97:    thread->lastActivate = curTick();
+thread_context.cc:98:    thread->lastSuspend = curTick();
+thread_context.cc:100:    thread->setStatus(gem5::ThreadContext::Suspended);
+thread_context.cc:101:    cpu->suspendContext(thread->threadId());
+thread_context.cc:105:ThreadContext::halt()
+thread_context.cc:107:    DPRINTF(O3CPU, "Calling halt on Thread Context %d\n", threadId());
+thread_context.cc:109:    if (thread->status() == gem5::ThreadContext::Halting ||
+thread_context.cc:110:        thread->status() == gem5::ThreadContext::Halted)
+thread_context.cc:113:    // the thread is not going to halt/terminate immediately in this cycle.
+thread_context.cc:114:    // The thread will be removed after an exit trap is processed
+thread_context.cc:115:    // (e.g., after trapLatency cycles). Until then, the thread's status
+thread_context.cc:117:    thread->setStatus(gem5::ThreadContext::Halting);
+thread_context.cc:119:    // add this thread to the exiting list to mark that it is trying to exit.
+thread_context.cc:120:    cpu->addThreadToExitingList(thread->threadId());
+thread_context.cc:124:ThreadContext::readLastActivate()
+thread_context.cc:126:    return thread->lastActivate;
+thread_context.cc:130:ThreadContext::readLastSuspend()
+thread_context.cc:132:    return thread->lastSuspend;
+thread_context.cc:136:ThreadContext::copyArchRegs(gem5::ThreadContext *tc)
+thread_context.cc:139:    thread->noSquashFromTC = true;
+thread_context.cc:141:    thread->noSquashFromTC = false;
+thread_context.cc:145:ThreadContext::clearArchRegs()
+thread_context.cc:147:    cpu->isa[thread->threadId()]->clear();
+thread_context.cc:151:ThreadContext::getReg(const RegId &reg) const
+thread_context.cc:153:    return cpu->getArchReg(reg, thread->threadId());
+thread_context.cc:157:ThreadContext::getWritableReg(const RegId &reg)
+thread_context.cc:159:    return cpu->getWritableArchReg(reg, thread->threadId());
+thread_context.cc:163:ThreadContext::getReg(const RegId &reg, void *val) const
+thread_context.cc:165:    cpu->getArchReg(reg, val, thread->threadId());
+thread_context.cc:169:ThreadContext::setReg(const RegId &reg, RegVal val)
+thread_context.cc:171:    cpu->setArchReg(reg, val, thread->threadId());
+thread_context.cc:176:ThreadContext::setReg(const RegId &reg, const void *val)
+thread_context.cc:178:    cpu->setArchReg(reg, val, thread->threadId());
+thread_context.cc:183:ThreadContext::pcState(const PCStateBase &val)
+thread_context.cc:185:    cpu->pcState(val, thread->threadId());
+thread_context.cc:191:ThreadContext::pcStateNoRecord(const PCStateBase &val)
+thread_context.cc:193:    cpu->pcState(val, thread->threadId());
+thread_context.cc:199:ThreadContext::setMiscRegNoEffect(RegIndex misc_reg, RegVal val)
+thread_context.cc:201:    cpu->setMiscRegNoEffect(misc_reg, val, thread->threadId());
+thread_context.cc:207:ThreadContext::setMiscReg(RegIndex misc_reg, RegVal val)
+thread_context.cc:209:    cpu->setMiscReg(misc_reg, val, thread->threadId());
+thread_context.cc:216:ThreadContext::htmAbortTransaction(uint64_t htmUid,
+thread_context.cc:219:    cpu->htmSendAbortSignal(thread->threadId(), htmUid, cause);
+thread_context.cc:225:ThreadContext::getHtmCheckpointPtr()
+thread_context.cc:227:    return thread->htmCheckpoint;
+thread_context.cc:231:ThreadContext::setHtmCheckpointPtr(BaseHTMCheckpointPtr new_cpt)
+thread_context.cc:233:    thread->htmCheckpoint = std::move(new_cpt);
+dep_graph.hh:217:    // unless the instruction dependent upon it is already ready.
+rob.hh:86:    /** Per-thread ROB status. */
+rob.hh:87:    Status robStatus[MaxThreads];
+rob.hh:102:    /** Sets pointer to the list of active threads.
+rob.hh:103:     *  @param at_ptr Pointer to the list of active threads.
+rob.hh:105:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+rob.hh:110:    /** Takes over another CPU's thread. */
+rob.hh:124://    DynInstPtr readHeadInst();
+rob.hh:126:    /** Returns a pointer to the head instruction of a specific thread within
+rob.hh:130:    const DynInstPtr &readHeadInst(ThreadID tid);
+rob.hh:135:    DynInstPtr findInst(ThreadID tid, InstSeqNum squash_inst);
+rob.hh:141://    DynInstPtr readTailInst();
+rob.hh:143:    /** Returns a pointer to the tail instruction of a specific thread within
+rob.hh:147:    DynInstPtr readTailInst(ThreadID tid);
+rob.hh:152:    /** Retires the head instruction of a specific thread, removing it from the
+rob.hh:155:    void retireHead(ThreadID tid);
+rob.hh:157:    /** Is the oldest instruction across all threads ready. */
+rob.hh:160:    /** Is the oldest instruction across a particular thread ready. */
+rob.hh:161:    bool isHeadReady(ThreadID tid);
+rob.hh:163:    /** Is there any commitable head instruction across all threads ready. */
+rob.hh:169:    /** Number of entries needed For 'num_threads' amount of threads. */
+rob.hh:170:    int entryAmount(ThreadID num_threads);
+rob.hh:176:    unsigned numFreeEntries(ThreadID tid);
+rob.hh:178:    /** Returns the maximum number of entries for a specific thread. */
+rob.hh:179:    unsigned getMaxEntries(ThreadID tid)
+rob.hh:182:    /** Returns the number of entries being used by a specific thread. */
+rob.hh:183:    unsigned getThreadEntries(ThreadID tid)
+rob.hh:184:    { return threadEntries[tid]; }
+rob.hh:190:    /** Returns if a specific thread's partition is full. */
+rob.hh:191:    bool isFull(ThreadID tid)
+rob.hh:192:    { return threadEntries[tid] == numEntries; }
+rob.hh:198:    /** Returns if a specific thread's partition is empty. */
+rob.hh:199:    bool isEmpty(ThreadID tid) const
+rob.hh:200:    { return threadEntries[tid] == 0; }
+rob.hh:203:    void doSquash(ThreadID tid);
+rob.hh:206:     *  the specific thread.
+rob.hh:208:    void squash(InstSeqNum squash_num, ThreadID tid);
+rob.hh:217://    uint64_t readHeadPC();
+rob.hh:219:    /** Reads the PC of the head instruction of a specific thread. */
+rob.hh:220://    uint64_t readHeadPC(ThreadID tid);
+rob.hh:223://    uint64_t readHeadNextPC();
+rob.hh:225:    /** Reads the next PC of the head instruction of a specific thread. */
+rob.hh:226://    uint64_t readHeadNextPC(ThreadID tid);
+rob.hh:229://    InstSeqNum readHeadSeqNum();
+rob.hh:231:    /** Reads the sequence number of the head instruction of a specific thread.
+rob.hh:233://    InstSeqNum readHeadSeqNum(ThreadID tid);
+rob.hh:236://    uint64_t readTailPC();
+rob.hh:238:    /** Reads the PC of the tail instruction of a specific thread. */
+rob.hh:239://    uint64_t readTailPC(ThreadID tid);
+rob.hh:242://    InstSeqNum readTailSeqNum();
+rob.hh:244:    /** Reads the sequence number of tail instruction of a specific thread. */
+rob.hh:245://    InstSeqNum readTailSeqNum(ThreadID tid);
+rob.hh:250:    bool isDoneSquashing(ThreadID tid) const
+rob.hh:254:     *  any thread.
+rob.hh:265:     *  threadEntries to get the instructions in the ROB unless you are
+rob.hh:268:    size_t countInsts(ThreadID tid);
+rob.hh:277:    /** Active Threads in CPU */
+rob.hh:278:    std::list<ThreadID> *activeThreads;
+rob.hh:283:    /** Entries Per Thread */
+rob.hh:284:    unsigned threadEntries[MaxThreads];
+rob.hh:286:    /** Max Insts a Thread Can Have in the ROB */
+rob.hh:287:    unsigned maxEntries[MaxThreads];
+rob.hh:290:    std::list<DynInstPtr> instList[MaxThreads];
+rob.hh:321:    InstIt squashIt[MaxThreads];
+rob.hh:332:    InstSeqNum squashedSeqNum[MaxThreads];
+rob.hh:335:    bool doneSquashing[MaxThreads];
+rob.hh:337:    /** Number of active threads. */
+rob.hh:338:    ThreadID numThreads;
+rob.hh:345:        // The number of rob_reads
+rob.hh:346:        statistics::Scalar reads;
+free_list.hh:150:     *  @param reservedIntRegs Number of integer registers already
+free_list.hh:153:     *  @param reservedFloatRegs Number of fp registers already
+decode.hh:66: * Decode class handles both single threaded and SMT
+decode.hh:84:    /** Individual thread status. */
+decode.hh:85:    enum ThreadStatus
+decode.hh:99:    /** Per-thread status. */
+decode.hh:100:    ThreadStatus decodeStatus[MaxThreads];
+decode.hh:108:    /** Clear all thread-specific states */
+decode.hh:109:    void clearStates(ThreadID tid);
+decode.hh:125:    /** Sets pointer to list of active threads. */
+decode.hh:126:    void setActiveThreads(std::list<ThreadID> *at_ptr);
+decode.hh:134:    /** Takes over from another CPU's thread. */
+decode.hh:145:     * @param tid Thread id to decode instructions from.
+decode.hh:147:    void decode(bool &status_change, ThreadID tid);
+decode.hh:154:    void decodeInsts(ThreadID tid);
+decode.hh:157:    /** Inserts a thread's instructions into the skid buffer, to be decoded
+decode.hh:160:    void skidInsert(ThreadID tid);
+decode.hh:165:    /** Updates overall decode status based on all of the threads' statuses. */
+decode.hh:169:     * sorted by thread.
+decode.hh:174:    void readStallSignals(ThreadID tid);
+decode.hh:177:    bool checkSignalsAndUpdate(ThreadID tid);
+decode.hh:180:    bool checkStall(ThreadID tid) const;
+decode.hh:189:    bool block(ThreadID tid);
+decode.hh:195:    bool unblock(ThreadID tid);
+decode.hh:200:    void squash(const DynInstPtr &inst, ThreadID tid);
+decode.hh:206:    unsigned squash(ThreadID tid);
+decode.hh:226:    // Might not be the best name as not only fetch will read it.
+decode.hh:242:    std::queue<DynInstPtr> insts[MaxThreads];
+decode.hh:245:    std::queue<DynInstPtr> skidBuffer[MaxThreads];
+decode.hh:259:    Stalls stalls[MaxThreads];
+decode.hh:279:    /** number of Active Threads*/
+decode.hh:280:    ThreadID numThreads;
+decode.hh:282:    /** List of active thread ids */
+decode.hh:283:    std::list<ThreadID> *activeThreads;
+decode.hh:289:    Addr bdelayDoneSeqNum[MaxThreads];
+decode.hh:292:    DynInstPtr squashInst[MaxThreads];
+decode.hh:301:    bool squashAfterDelaySlot[MaxThreads];
+commit.cc:57:#include "cpu/o3/thread_state.hh"
+commit.cc:77:Commit::processTrapEvent(ThreadID tid)
+commit.cc:93:      numThreads(params.numThreads),
+commit.cc:111:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+commit.cc:116:    for (ThreadID tid = 0; tid < MaxThreads; tid++) {
+commit.cc:181:        .init(cpu->numThreads)
+commit.cc:185:        .init(cpu->numThreads)
+commit.cc:189:        .init(commit->numThreads)
+commit.cc:193:        .init(commit->numThreads,enums::Num_OpClass)
+commit.cc:200:Commit::setThreads(std::vector<ThreadState *> &threads)
+commit.cc:202:    thread = threads;
+commit.cc:213:    // Setup wire to read data from IEW (for the ROB).
+commit.cc:251:Commit::setActiveThreads(std::list<ThreadID> *at_ptr)
+commit.cc:253:    activeThreads = at_ptr;
+commit.cc:257:Commit::setRenameMap(UnifiedRenameMap::PerThreadUnifiedRenameMap& rm_ptr)
+commit.cc:259:    for (ThreadID tid = 0; tid < numThreads; tid++)
+commit.cc:268:    rob->setActiveThreads(activeThreads);
+commit.cc:272:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+commit.cc:286:Commit::clearStates(ThreadID tid)
+commit.cc:317:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+commit.cc:336:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+commit.cc:356:    for (ThreadID tid = 0; tid < numThreads; tid++) {
+commit.cc:367:Commit::deactivateThread(ThreadID tid)
+commit.cc:369:    std::list<ThreadID>::iterator thread_it = std::find(priority_list.begin(),
+commit.cc:372:    if (thread_it != priority_list.end()) {
+commit.cc:373:        priority_list.erase(thread_it);
+commit.cc:378:Commit::executingHtmTransaction(ThreadID tid) const
+commit.cc:380:    if (tid == InvalidThreadID)
+commit.cc:387:Commit::resetHtmStartsStops(ThreadID tid)
+commit.cc:389:    if (tid != InvalidThreadID)
+commit.cc:401:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+commit.cc:402:    std::list<ThreadID>::iterator end = activeThreads->end();
+commit.cc:404:    while (threads != end) {
+commit.cc:405:        ThreadID tid = *threads++;
+commit.cc:409:        // Also check if any of the threads has a trap pending
+commit.cc:430:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+commit.cc:431:    std::list<ThreadID>::iterator end = activeThreads->end();
+commit.cc:433:    while (threads != end) {
+commit.cc:434:        ThreadID tid = *threads++;
+commit.cc:445:Commit::numROBFreeEntries(ThreadID tid)
+commit.cc:451:Commit::generateTrapEvent(ThreadID tid, Fault inst_fault)
+commit.cc:472:    thread[tid]->trapPending = true;
+commit.cc:476:Commit::generateTCEvent(ThreadID tid)
+commit.cc:485:Commit::squashAll(ThreadID tid)
+commit.cc:490:    // all instructions of this thread.
+commit.cc:492:        lastCommitedSeqNum[tid] : rob->readHeadInst(tid)->seqNum - 1;
+commit.cc:520:Commit::squashFromTrap(ThreadID tid)
+commit.cc:526:    thread[tid]->trapPending = false;
+commit.cc:527:    thread[tid]->noSquashFromTC = false;
+commit.cc:537:Commit::squashFromTC(ThreadID tid)
+commit.cc:543:    thread[tid]->noSquashFromTC = false;
+commit.cc:544:    assert(!thread[tid]->trapPending);
+commit.cc:553:Commit::squashFromSquashAfter(ThreadID tid)
+commit.cc:570:Commit::squashAfter(ThreadID tid, const DynInstPtr &head_inst)
+commit.cc:586:    if (activeThreads->empty())
+commit.cc:589:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+commit.cc:590:    std::list<ThreadID>::iterator end = activeThreads->end();
+commit.cc:592:    // Check if any of the threads are done squashing.  Change the
+commit.cc:594:    while (threads != end) {
+commit.cc:595:        ThreadID tid = *threads++;
+commit.cc:597:        // Clear the bit saying if the thread has committed stores
+commit.cc:619:    threads = activeThreads->begin();
+commit.cc:621:    while (threads != end) {
+commit.cc:622:        ThreadID tid = *threads++;
+commit.cc:624:        if (!rob->isEmpty(tid) && rob->readHeadInst(tid)->readyToCommit()) {
+commit.cc:629:            [[maybe_unused]] const DynInstPtr &inst = rob->readHeadInst(tid);
+commit.cc:632:                    " ROB and ready to commit\n",
+commit.cc:636:            const DynInstPtr &inst = rob->readHeadInst(tid);
+commit.cc:641:                    "%s is head of ROB and not ready\n",
+commit.cc:681:        assert(!thread[0]->noSquashFromTC);
+commit.cc:682:        thread[0]->noSquashFromTC = true;
+commit.cc:693:        thread[0]->noSquashFromTC = false;
+commit.cc:723:    // @todo: Allow other threads to handle interrupts.
+commit.cc:739:        // Check if we have a interrupt and get read to handle it
+commit.cc:747:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+commit.cc:748:    std::list<ThreadID>::iterator end = activeThreads->end();
+commit.cc:750:    int num_squashing_threads = 0;
+commit.cc:752:    while (threads != end) {
+commit.cc:753:        ThreadID tid = *threads++;
+commit.cc:761:            // If the thread is trying to exit (i.e., an exit syscall was
+commit.cc:764:            // the next cycle to fully terminate this thread
+commit.cc:765:            if (cpu->isThreadExiting(tid))
+commit.cc:766:                cpu->scheduleThreadExitEvent(tid);
+commit.cc:773:            // thread now.
+commit.cc:842:            num_squashing_threads++;
+commit.cc:848:    if (num_squashing_threads) {
+commit.cc:852:    if (num_squashing_threads != numThreads) {
+commit.cc:861:    threads = activeThreads->begin();
+commit.cc:863:    while (threads != end) {
+commit.cc:864:        ThreadID tid = *threads++;
+commit.cc:921:        ThreadID commit_thread = getCommittingThread();
+commit.cc:923:        // Check for any interrupt that we've already squashed for
+commit.cc:927:            if (executingHtmTransaction(commit_thread)) {
+commit.cc:937:        // ThreadID commit_thread = getCommittingThread();
+commit.cc:939:        if (commit_thread == -1 || !rob->isHeadReady(commit_thread))
+commit.cc:942:        head_inst = rob->readHeadInst(commit_thread);
+commit.cc:944:        ThreadID tid = head_inst->threadNumber;
+commit.cc:946:        assert(tid == commit_thread);
+commit.cc:952:        // If the head instruction is squashed, it is ready to retire
+commit.cc:959:            rob->retireHead(commit_thread);
+commit.cc:1020:                       !head_inst->readPredicate());
+commit.cc:1045:                        !thread[tid]->trapPending) {
+commit.cc:1065:                    assert(!thread[tid]->noSquashFromTC &&
+commit.cc:1066:                           !thread[tid]->trapPending);
+commit.cc:1069:                        thread[tid]->pcEventQueue.service(
+commit.cc:1070:                                oldpc, thread[tid]->getTC());
+commit.cc:1113:    ThreadID tid = head_inst->threadNumber;
+commit.cc:1204:        assert(!thread[tid]->noSquashFromTC);
+commit.cc:1208:        thread[tid]->noSquashFromTC = true;
+commit.cc:1221:        thread[tid]->noSquashFromTC = false;
+commit.cc:1236:                head_inst->traceData->setCPSeq(thread[tid]->numOp);
+commit.cc:1255:        head_inst->traceData->setCPSeq(thread[tid]->numOp);
+commit.cc:1304:        ThreadID tid = inst->threadNumber;
+commit.cc:1316:            assert(rob->getThreadEntries(tid) <= rob->getMaxEntries(tid));
+commit.cc:1335:            DPRINTF(Commit, "[tid:%i] Marking PC %s, [sn:%llu] ready "
+commit.cc:1337:                    fromIEW->insts[inst_num]->threadNumber,
+commit.cc:1341:            // Mark the instruction as ready to commit.
+commit.cc:1350:    ThreadID tid = inst->threadNumber;
+commit.cc:1413:ThreadID
+commit.cc:1414:Commit::getCommittingThread()
+commit.cc:1416:    if (numThreads > 1) {
+commit.cc:1417:        // If a thread is exiting, we need to ensure that *all* of its
+commit.cc:1419:        // thread will be removed from the CPU at the end of this cycle.
+commit.cc:1420:        // To ensure this, we prioritize committing from exiting threads
+commit.cc:1421:        // before we consider other threads using the specified SMT
+commit.cc:1423:        for (ThreadID tid : *activeThreads) {
+commit.cc:1424:            if (cpu->isThreadExiting(tid) &&
+commit.cc:1430:                       rob->readHeadInst(tid)->isSquashed());
+commit.cc:1443:            return InvalidThreadID;
+commit.cc:1446:        assert(!activeThreads->empty());
+commit.cc:1447:        ThreadID tid = activeThreads->front();
+commit.cc:1454:            return InvalidThreadID;
+commit.cc:1459:ThreadID
+commit.cc:1462:    std::list<ThreadID>::iterator pri_iter = priority_list.begin();
+commit.cc:1463:    std::list<ThreadID>::iterator end      = priority_list.end();
+commit.cc:1466:        ThreadID tid = *pri_iter;
+commit.cc:1483:    return InvalidThreadID;
+commit.cc:1486:ThreadID
+commit.cc:1493:    std::list<ThreadID>::iterator threads = activeThreads->begin();
+commit.cc:1494:    std::list<ThreadID>::iterator end = activeThreads->end();
+commit.cc:1496:    while (threads != end) {
+commit.cc:1497:        ThreadID tid = *threads++;
+commit.cc:1506:                const DynInstPtr &head_inst = rob->readHeadInst(tid);
+commit.cc:1523:        return InvalidThreadID;
+lsq_unit.cc:247:    if (MaxThreads == 1) {
+lsq_unit.cc:250:        return iewStage->name() + ".lsq.thread" + std::to_string(lsqID);
+lsq_unit.cc:435:        gem5::ThreadContext *tc = cpu->getContext(x);
+lsq_unit.cc:436:        bool no_squash = cpu->thread[x]->noSquashFromTC;
+lsq_unit.cc:437:        cpu->thread[x]->noSquashFromTC = true;
+lsq_unit.cc:439:        cpu->thread[x]->noSquashFromTC = no_squash;
+lsq_unit.cc:562:                // Check if we already have a violator, or if it's newer
+lsq_unit.cc:602:    if (load_fault == NoFault && !inst->readMemAccPredicate()) {
+lsq_unit.cc:603:        assert(inst->readPredicate());
+lsq_unit.cc:627:    if (load_fault != NoFault || !inst->readPredicate()) {
+lsq_unit.cc:632:        if (!inst->readPredicate())
+lsq_unit.cc:679:    if (!store_inst->readPredicate()) {
+lsq_unit.cc:895:            gem5::ThreadContext *thread = cpu->tcBase(lsqID);
+lsq_unit.cc:899:            request->mainReq()->localAccessor(thread, main_pkt);
+lsq_unit.cc:1003:        // Instructions marked as can WB are already committed.
+lsq_unit.cc:1110:                // can occur with ldp_uop microops since access is spread over
+lsq_unit.cc:1317:LSQUnit::read(LSQRequest *request, ssize_t load_idx)
+lsq_unit.cc:1329:    // only if they're at the head of the LSQ and are ready to commit
+lsq_unit.cc:1373:        gem5::ThreadContext *thread = cpu->tcBase(lsqID);
+lsq_unit.cc:1378:        Cycles delay = request->mainReq()->localAccessor(thread, main_pkt);
+lsq_unit.cc:1482:                // property than the read set, so the load doesn't necessarily
+lsq_unit.cc:1508:                    // There are memory requests packets in flight already.
+lsq_unit.cc:1531:                // If it's already been written back, then don't worry about
+thread_state.hh:46:#include "cpu/thread_context.hh"
+thread_state.hh:47:#include "cpu/thread_state.hh"
+thread_state.hh:60: * Class that has various thread state, such as the status, the
+thread_state.hh:61: * current instruction being processed, whether or not the thread has
+thread_state.hh:62: * a trap pending or is being externally updated, the ThreadContext
+thread_state.hh:64: * thread's process, such as syscalls and checking valid addresses.
+thread_state.hh:66:class ThreadState : public gem5::ThreadState
+thread_state.hh:76:    /* This variable controls if writes to a thread context should cause a all
+thread_state.hh:78:     * desired behavior because the external thread context write has updated
+thread_state.hh:86:    /** Whether or not the thread is currently waiting on a trap, and
+thread_state.hh:94:    ThreadState(CPU *_cpu, int _thread_num, Process *_process);
+thread_state.hh:99:    /** Pointer to the ThreadContext of this thread. */
+thread_state.hh:100:    gem5::ThreadContext *tc = nullptr;
+thread_state.hh:102:    /** Returns a pointer to the TC of this thread. */
+thread_state.hh:103:    gem5::ThreadContext *getTC() { return tc; }
+inst_queue.cc:93:      numThreads(params.numThreads),
+inst_queue.cc:122:    for (ThreadID tid = 0; tid < MaxThreads; tid++) {
+inst_queue.cc:132:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+inst_queue.cc:138:        int part_amt = numEntries / numThreads;
+inst_queue.cc:141:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+inst_queue.cc:146:                "%i entries per thread.\n",part_amt);
+inst_queue.cc:153:        for (ThreadID tid = 0; tid < numThreads; tid++) {
+inst_queue.cc:158:                "%i entries per thread.\n",thresholdIQ);
+inst_queue.cc:160:    for (ThreadID tid = numThreads; tid < MaxThreads; tid++) {
+inst_queue.cc:213:             "Number of instructions issued per FU type, per thread"),
+inst_queue.cc:276:        .desc("Reason ready instruction not issued")
+inst_queue.cc:284:        .init(cpu->numThreads,enums::Num_OpClass)
+inst_queue.cc:296:        .desc("cycles from operands ready to issue")
+inst_queue.cc:318:        .init(cpu->numThreads)
+inst_queue.cc:331:             "Number of integer instruction queue reads"),
+inst_queue.cc:337:             "Number of floating instruction queue reads"),
+inst_queue.cc:343:             "Number of vector instruction queue reads"),
+inst_queue.cc:396:    //Initialize thread IQ counts
+inst_queue.cc:397:    for (ThreadID tid = 0; tid < MaxThreads; tid++) {
+inst_queue.cc:406:    // registers start off as ready.  However this doesn't matter for the
+inst_queue.cc:408:    // registers are ready in rename.  Thus it can all be initialized as
+inst_queue.cc:409:    // unready.
+inst_queue.cc:414:    for (ThreadID tid = 0; tid < MaxThreads; ++tid) {
+inst_queue.cc:419:        while (!readyInsts[i].empty())
+inst_queue.cc:420:            readyInsts[i].pop();
+inst_queue.cc:422:        readyIt[i] = listOrder.end();
+inst_queue.cc:433:InstructionQueue::setActiveThreads(list<ThreadID> *at_ptr)
+inst_queue.cc:435:    activeThreads = at_ptr;
+inst_queue.cc:458:    for (ThreadID tid = 0; tid < numThreads; ++tid)
+inst_queue.cc:469:    for (ThreadID tid = 0; tid < numThreads; ++tid)
+inst_queue.cc:480:InstructionQueue::entryAmount(ThreadID num_threads)
+inst_queue.cc:483:        return numEntries / num_threads;
+inst_queue.cc:493:    if (iqPolicy != SMTQueuePolicy::Dynamic || numThreads > 1) {
+inst_queue.cc:494:        int active_threads = activeThreads->size();
+inst_queue.cc:496:        list<ThreadID>::iterator threads = activeThreads->begin();
+inst_queue.cc:497:        list<ThreadID>::iterator end = activeThreads->end();
+inst_queue.cc:499:        while (threads != end) {
+inst_queue.cc:500:            ThreadID tid = *threads++;
+inst_queue.cc:503:                maxEntries[tid] = numEntries / active_threads;
+inst_queue.cc:505:                       active_threads == 1) {
+inst_queue.cc:519:InstructionQueue::numFreeEntries(ThreadID tid)
+inst_queue.cc:537:InstructionQueue::isFull(ThreadID tid)
+inst_queue.cc:554:        if (!readyInsts[i].empty()) {
+inst_queue.cc:580:    instList[new_inst->threadNumber].push_back(new_inst);
+inst_queue.cc:595:        memDepUnit[new_inst->threadNumber].insert(new_inst);
+inst_queue.cc:602:    count[new_inst->threadNumber]++;
+inst_queue.cc:630:    instList[new_inst->threadNumber].push_back(new_inst);
+inst_queue.cc:643:        memDepUnit[new_inst->threadNumber].insertNonSpec(new_inst);
+inst_queue.cc:648:    count[new_inst->threadNumber]++;
+inst_queue.cc:656:    memDepUnit[barr_inst->threadNumber].insertBarrier(barr_inst);
+inst_queue.cc:680:    assert(!readyInsts[op_class].empty());
+inst_queue.cc:686:    queue_entry.oldestInst = readyInsts[op_class].top()->seqNum;
+inst_queue.cc:699:    readyIt[op_class] = listOrder.insert(list_it, queue_entry);
+inst_queue.cc:718:    queue_entry.oldestInst = readyInsts[op_class].top()->seqNum;
+inst_queue.cc:725:    readyIt[op_class] = listOrder.insert(next_it, queue_entry);
+inst_queue.cc:754:    DPRINTF(IQ, "Attempting to schedule ready instructions from "
+inst_queue.cc:784:        assert(!readyInsts[op_class].empty());
+inst_queue.cc:786:        DynInstPtr issuing_inst = readyInsts[op_class].top();
+inst_queue.cc:799:            readyInsts[op_class].pop();
+inst_queue.cc:801:            if (!readyInsts[op_class].empty()) {
+inst_queue.cc:804:                readyIt[op_class] = listOrder.end();
+inst_queue.cc:817:        ThreadID tid = issuing_inst->threadNumber;
+inst_queue.cc:875:            DPRINTF(IQ, "Thread %i: Issuing instruction PC %s "
+inst_queue.cc:880:            readyInsts[op_class].pop();
+inst_queue.cc:882:            if (!readyInsts[op_class].empty()) {
+inst_queue.cc:885:                readyIt[op_class] = listOrder.end();
+inst_queue.cc:936:    DPRINTF(IQ, "Marking nonspeculative instruction [sn:%llu] as ready "
+inst_queue.cc:943:    ThreadID tid = (*inst_it).second->threadNumber;
+inst_queue.cc:961:InstructionQueue::commit(const InstSeqNum &inst, ThreadID tid)
+inst_queue.cc:1000:    ThreadID tid = completed_inst->threadNumber;
+inst_queue.cc:1047:        //ready within the waiting instructions.
+inst_queue.cc:1056:            // ready.  However that would mean that the dependency
+inst_queue.cc:1072:        // Mark the scoreboard as having that register ready.
+inst_queue.cc:1079:InstructionQueue::addReadyMemInst(const DynInstPtr &ready_inst)
+inst_queue.cc:1081:    OpClass op_class = ready_inst->opClass();
+inst_queue.cc:1083:    readyInsts[op_class].push(ready_inst);
+inst_queue.cc:1089:    } else if (readyInsts[op_class].top()->seqNum  <
+inst_queue.cc:1090:               (*readyIt[op_class]).oldestInst) {
+inst_queue.cc:1091:        listOrder.erase(readyIt[op_class]);
+inst_queue.cc:1095:    DPRINTF(IQ, "Instruction is ready to issue, putting it onto "
+inst_queue.cc:1096:            "the ready list, PC %s opclass:%i [sn:%llu].\n",
+inst_queue.cc:1097:            ready_inst->pcState(), op_class, ready_inst->seqNum);
+inst_queue.cc:1110:    memDepUnit[resched_inst->threadNumber].reschedule(resched_inst);
+inst_queue.cc:1116:    memDepUnit[replay_inst->threadNumber].replay();
+inst_queue.cc:1177:    memDepUnit[store->threadNumber].violation(store, faulting_load);
+inst_queue.cc:1181:InstructionQueue::squash(ThreadID tid)
+inst_queue.cc:1197:InstructionQueue::doSquash(ThreadID tid)
+inst_queue.cc:1221:        // hasn't already been squashed in the IQ.
+inst_queue.cc:1222:        if (squashed_inst->threadNumber != tid ||
+inst_queue.cc:1264:                    if (!squashed_inst->readySrcIdx(src_reg_idx) &&
+inst_queue.cc:1279:                // nonSpecInsts already when they are ready, and so we
+inst_queue.cc:1282:                    // loads that became ready but stalled on a
+inst_queue.cc:1308:            //Update Thread IQ Count
+inst_queue.cc:1309:            count[squashed_inst->threadNumber]--;
+inst_queue.cc:1349:    // them to the dependency list if they are not ready.
+inst_queue.cc:1357:        // Only add it to the dependency graph if it's not ready.
+inst_queue.cc:1358:        if (!new_inst->readySrcIdx(src_reg_idx)) {
+inst_queue.cc:1362:            // hasn't become ready while the instruction was in flight
+inst_queue.cc:1363:            // between stages.  Only if it really isn't ready should
+inst_queue.cc:1380:                        "became ready before it reached the IQ.\n",
+inst_queue.cc:1383:                // Mark a register ready within the instruction.
+inst_queue.cc:1422:        // Mark the scoreboard to say it's not yet ready.
+inst_queue.cc:1431:    // available, then add it to the list of ready instructions.
+inst_queue.cc:1432:    if (inst->readyToIssue()) {
+inst_queue.cc:1434:        //Add the instruction to the proper ready list.
+inst_queue.cc:1440:            // its registers ready.
+inst_queue.cc:1441:            memDepUnit[inst->threadNumber].regsReady(inst);
+inst_queue.cc:1448:        DPRINTF(IQ, "Instruction is ready to issue, putting it onto "
+inst_queue.cc:1449:                "the ready list, PC %s opclass:%i [sn:%llu].\n",
+inst_queue.cc:1452:        readyInsts[op_class].push(inst);
+inst_queue.cc:1458:        } else if (readyInsts[op_class].top()->seqNum  <
+inst_queue.cc:1459:                   (*readyIt[op_class]).oldestInst) {
+inst_queue.cc:1460:            listOrder.erase(readyIt[op_class]);
+inst_queue.cc:1476:        cprintf("Ready list %i size: %i\n", i, readyInsts[i].size());
+inst_queue.cc:1517:    for (ThreadID tid = 0; tid < numThreads; ++tid) {
+inst_queue.cc:1541:                    (*inst_list_it)->threadNumber,
+inst_queue.cc:1583:                (*inst_list_it)->threadNumber,
