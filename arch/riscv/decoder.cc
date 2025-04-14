@@ -39,7 +39,7 @@ namespace gem5
 namespace RiscvISA
 {
 
-Decoder::Decoder(const RiscvDecoderParams &p) : InstDecoder(p, &machInst)
+Decoder::Decoder(const RiscvDecoderParams &p) : InstDecoder(p, &machInst) , vectorizer()
 {
     ISA *isa = dynamic_cast<ISA*>(p.isa);
     vlen = isa->getVecLenInBits();
@@ -125,13 +125,83 @@ Decoder::decode(PCStateBase &_next_pc)
     }
 
     emi.vl      = next_pc.vl();
+
     emi.vtype8  = next_pc.vtype() & 0xff;
     emi.vill    = next_pc.vtype().vill;
+
     emi.rv_type = static_cast<int>(next_pc.rvType());
     emi.enable_zcd = _enableZcd;
 
+    DPRINTF(Decode, "pc %x , vl %x vsew %x vlmul%x\n",
+            next_pc.instAddr(),next_pc.vl(),emi.vtype8.vsew, emi.vtype8.vlmul);
     return decode(emi, next_pc.instAddr());
 }
+
+StaticInstPtr
+Decoder::decode2vec(ExtMachInst mach_inst, Addr addr)
+{
+
+    StaticInstPtr &si = instMap[mach_inst];
+    if (!si)
+        si = decodeInst(mach_inst);
+
+    si->size(compressed(mach_inst) ? 2 : 4);
+
+    DPRINTF(Decode, "Decoding instruction 0x%08x at address %#x to vector instruction\n",
+            mach_inst.instBits, addr);
+
+    DPRINTF(Decode, "Decode: Decoded %s instruction: %#x\n",
+            si->getName(), mach_inst);
+    return si;
+}
+
+
+// dvr_start
+StaticInstPtr
+Decoder::decode2vec(PCStateBase &_next_pc,StaticInstPtr &StaticInst)
+{
+
+    auto &next_pc = _next_pc.as<PCState>();
+
+    if (compressed(emi)) {
+        next_pc.npc(next_pc.instAddr() + sizeof(machInst) / 2);
+        next_pc.compressed(true);
+    } else {
+        next_pc.npc(next_pc.instAddr() + sizeof(machInst));
+        next_pc.compressed(false);
+    }
+
+    VTYPE vtype = VTYPE ((0 << 63) + (0 << 7) + (0 << 6) + (2 << 3) + (0 << 0));
+
+    ExtMachInst vemi;
+    vemi.vl      = 8;
+    vemi.vtype8  = vtype & 0xff;
+    vemi.vill    = 0;
+    vemi.rv_type = static_cast<int>(next_pc.rvType());
+    vemi.enable_zcd = _enableZcd;
+
+    if (StaticInst->isLoad()) {
+    // stride load
+        vemi.nf     =  0;
+        vemi.mew    =  0;
+        vemi.mop    =  2; // stride_load 
+        vemi.vm     =  0;
+        vemi.width  =  7; // 一个数64b  , sew = 32 , 一次8个元素
+        vemi.opcode =  7; // stride load
+    }
+    else { // 算数指令
+        vemi = emi;
+        bool is_imm = vectorizer.get_vector(vemi);
+        if (is_imm) { // 如果有立即数, 希望能够再产生一条指令
+
+        }
+    }
+
+    return decode2vec(vemi, next_pc.instAddr());
+}
+
+
+// dvr_end
 
 } // namespace RiscvISA
 } // namespace gem5

@@ -1,0 +1,10 @@
+*.pyc
+*~
+.*.swp
+.*.swo
+/doxygen/html
+.pyenv
+.vscode
+typings
+.DS_Store
+*.log

@@ -40,14 +40,14 @@ template <class T>
 class TimeBuffer
 {
   protected:
-    int past;
-    int future;
+    int past; // 相当于past深度的fifo
+    int future; // 相对于当前时刻数据的在时间上更早出现的数据
     unsigned size;
     int _id;
 
     char *data;
     std::vector<char *> index;
-    unsigned base;
+    unsigned base; // 当前时刻的数据
 
     void valid(int idx) const
     {
@@ -61,10 +61,11 @@ class TimeBuffer
         friend class TimeBuffer;
       protected:
         TimeBuffer<T> *buffer;
-        int index;
+
+        int index; // index 定位当前wire 取自timebuffer 的哪个元素
 
         void set(int idx)
-        {
+        {  // 判断是否有效 + 赋值index
             buffer->valid(idx);
             index = idx;
         }
@@ -80,7 +81,7 @@ class TimeBuffer
         wire(const wire &i)
             : buffer(i.buffer), index(i.index)
         { }
-
+        // 重载 = ， 赋值buffer 和 index
         const wire &operator=(const wire &i)
         {
             buffer = i.buffer;
@@ -106,13 +107,13 @@ class TimeBuffer
             return *this;
         }
 
-        wire &operator++()
+        wire &operator++() // ++a
         {
             set(index + 1);
             return *this;
         }
 
-        wire &operator++(int)
+        wire &operator++(int) // a++
         {
             int i = index;
             set(index + 1);
@@ -131,12 +132,13 @@ class TimeBuffer
             set(index - 1);
             return wire(this, i);
         }
-        T &operator*() const { return *buffer->access(index); }
-        T *operator->() const { return buffer->access(index); }
+        T &operator*() const { return *buffer->access(index); } // 
+        T *operator->() const { return buffer->access(index); } // 
     };
 
 
   public:
+    // 初始化每个时间点的数据
     TimeBuffer(int p, int f)
         : past(p), future(f), size(past + future + 1),
           data(new char[size * sizeof(T)]), index(size), base(0)
@@ -178,9 +180,10 @@ class TimeBuffer
     void
     advance()
     {
+        // 清理“未来”最远的数据（因为时间推进后它变成无效数据）
         if (++base >= size)
             base = 0;
-
+        // 模拟时间步进，更新 base 并清理过期数据。
         int ptr = base + future;
         if (ptr >= (int)size)
             ptr -= size;
@@ -210,7 +213,7 @@ class TimeBuffer
   public:
     T *access(int idx)
     {
-        int vector_index = calculateVectorIndex(idx);
+        int vector_index = calculateVectorIndex(idx); // idx + base
 
         return reinterpret_cast<T *>(index[vector_index]);
     }

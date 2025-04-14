@@ -729,7 +729,6 @@ Fetch::doSquash(const PCStateBase &new_pc, const DynInstPtr squashInst,
     // interrupts are not handled when they cannot be, though
     // some opportunities to handle interrupts may be missed.
     delayedCommit[tid] = true;
-
     ++fetchStats.squashCycles;
 }
 
@@ -1154,6 +1153,7 @@ Fetch::fetch(bool &status_change)
     std::unique_ptr<PCStateBase> next_pc(this_pc.clone());
 
     StaticInstPtr staticInst = NULL;
+    StaticInstPtr staticInstvec = NULL;
     StaticInstPtr curMacroop = macroop[tid];
 
     // If the read of the first instruction was successful, then grab the
@@ -1219,6 +1219,14 @@ Fetch::fetch(bool &status_change)
                 if (dec_ptr->instReady()) {
                     staticInst = dec_ptr->decode(this_pc);
 
+                    /************ DVR Start ***********/
+                    // TAGE: DVR 向量化的译码
+                    if ((cpu->getStridePc() == this_pc.instAddr() && mode->getMode() == Mode::DISCOVER) 
+                    || mode->getMode() == Mode::VECTOR) { // 如果是在vector_mode 的话，需要做向量化
+                        staticInstvec = dec_ptr->decode2vec(this_pc,staticInst);
+                    }
+                    /************ DVR End ***********/
+
                     // Increment stat of fetched instructions.
                     cpu->fetchStats[tid]->numInsts++;
 
@@ -1238,7 +1246,7 @@ Fetch::fetch(bool &status_change)
             // thinks we are...
             bool newMacro = false;
             if (curMacroop || inRom) {
-                if (inRom) {
+                if (inRom) { // x86 有
                     staticInst = dec_ptr->fetchRomMicroop(
                             this_pc.microPC(), curMacroop);
                 } else {
@@ -1247,9 +1255,33 @@ Fetch::fetch(bool &status_change)
                 newMacro |= staticInst->isLastMicroop();
             }
 
+
             DynInstPtr instruction = buildInst(
                     tid, staticInst, curMacroop, this_pc, *next_pc, true);
 
+            /************ DVR Start ************/ 
+            // TAG : 传输给buffer 
+            static bool flag = false;
+            if (mode->getMode() == Mode::VECTOR && this_pc.instAddr() == cpu->getStridePc()) {
+                flag = true;
+            }
+            else if ((mode->getMode() == Mode::WAIT && this_pc.instAddr() == cpu->getStridePc()) 
+            || (mode->getMode() != Mode::WAIT && mode->getMode() != Mode::VECTOR)) {
+                flag = false;
+            }
+            if (flag) { // 如果是在vector_mode 的话，需要做向量化
+                // assert(staticInstvec);  // 确保存在
+                // InstSeqNum seq = cpu->getAndIncrementInstSeq(); // HACK:需要分配instseqnum吗,不过应该不影响指令的正常执行
+                // DynInst::Arrays arrays;
+                // arrays.numSrcs = staticInst->numSrcRegs();
+                // arrays.numDests = staticInst->numDestRegs();
+
+                // DynInstPtr instructionvec = new (arrays) DynInst(
+                //     arrays, staticInst, curMacroop, this_pc, *next_pc, seq, cpu);
+
+                dvr_buffer->pushInstruction(instruction);
+            }
+            /************ DVR End ************/ 
             ppFetch->notify(instruction);
             numInst++;
 
@@ -1436,7 +1468,8 @@ Fetch::iqCount()
 
     while (threads != end) {
         ThreadID tid = *threads++;
-        unsigned iqCount = fromIEW->iewInfo[tid].iqCount;
+        // 访问返回的是idx + base的地址 ， index = -1 
+        unsigned iqCount = fromIEW->iewInfo[tid].iqCount;  
 
         //we can potentially get tid collisions if two threads
         //have the same iqCount, but this should be rare.
@@ -1595,6 +1628,13 @@ void
 Fetch::IcachePort::recvReqRetry()
 {
     fetch->recvReqRetry();
+}
+
+
+// HACK: 把这个放在hh文件里就过不了编译
+void 
+Fetch::setDvrBuffer(DvrBuffer *dvr_buff) {
+      this->dvr_buffer = dvr_buff;
 }
 
 } // namespace o3

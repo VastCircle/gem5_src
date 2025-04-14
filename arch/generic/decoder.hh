@@ -154,6 +154,11 @@ class InstDecoder : public SimObject
      * decoder isn't ready (see instReady()).
      */
     virtual StaticInstPtr decode(PCStateBase &pc) = 0;
+
+    // dvr start
+    virtual StaticInstPtr decode2vec(PCStateBase &nextPC,StaticInstPtr &StaticInst) = 0;
+    // dvr edn
+
 };
 
 } // namespace gem5

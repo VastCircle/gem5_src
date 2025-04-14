@@ -291,8 +291,9 @@ class Decode
     /** Instruction used for squashing branch (used for MIPS)*/
     DynInstPtr squashInst[MaxThreads];
 
-    DvrBuffer dvr_buffer;
-    Mode mode;
+
+    DvrBuffer * dvr_buffer;
+    Mode *mode;
 
     /** Tells when their is a pending delay slot inst. to send
      *  to rename. If there is, then wait squash after the next
@@ -331,13 +332,12 @@ class Decode
 // dvr_start
 public:
     // 设置dvr_buffer
-    void setDvrBuffer(DvrBuffer &dvr_buff);
-    void setDvrMode(Mode &mode) {
+    void setDvrBuffer(DvrBuffer *dvr_buff);
+    void setDvrMode(Mode *mode) {
       this->mode = mode;
     }
 // dvr_end
 };
-
 } // namespace o3
 } // namespace gem5
 

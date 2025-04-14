@@ -609,6 +609,9 @@ class CPU : public BaseCPU
     Addr getStridePc() {
       return rpts.stride_load_pc;
     }
+    // Addr getFinalPc() {
+    //   return .final_pc;
+    // }
 };
 
 } // namespace o3

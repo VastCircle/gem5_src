@@ -58,6 +58,8 @@
 #include "debug/O3PipeView.hh"
 #include "params/BaseO3CPU.hh"
 
+#include "debug/DVR.hh"
+
 namespace gem5
 {
 
@@ -67,9 +69,6 @@ namespace o3
 IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
     : issueToExecQueue(params.backComSize, params.forwardComSize),
       cpu(_cpu),
-      rpts(_cpu, params),
-      mode(),
-      dvr_buffer(_cpu,params),
       tk(_cpu,params),
       lbp(_cpu,params),
       instQueue(_cpu, this, params),
@@ -865,7 +864,7 @@ IEW::dispatchInsts(ThreadID tid)
         bool clear_vtt = false , towait = false;
         uint16_t loop_number = 0;
         bool if_prf = false;
-        uint64_t time_out = 0;
+        static uint64_t time_out = 0;
         inst = insts_to_dispatch.front();
 
         if (dispatchStatus[tid] == Unblocking) {
@@ -992,12 +991,13 @@ IEW::dispatchInsts(ThreadID tid)
 
             DPRINTF(IEW, "[tid:%i] Issue: Memory instruction "
                     "encountered, adding to LSQ.\n", tid);
-            // dvr start
-            // rpts.CreateNewEntry(inst);  // 创建一个新的表项
-            std::tie(clear_vtt,towait) = rpts.UpdateEntrySeen(inst);  // 更新seen
-            if_prf = rpts.GetRptStats(inst);
+
+            /************ DVR Start ************/ 
+            // TAG: 更新Seen
+            std::tie(towait,clear_vtt) = rpts->UpdateEntrySeen(inst);  
+            if_prf = rpts->GetRptStats(inst);
             // 增加一个rpt表项
-            // dvr end
+            /************ DVR End ************/ 
 
             // Reserve a spot in the load store queue for this
             // memory access.
@@ -1076,28 +1076,34 @@ IEW::dispatchInsts(ThreadID tid)
         if (add_to_iq) {
             instQueue.insert(inst);
         }
-
-        // dvr start
+        /************ DVR Start ************/ 
+        // TAG:DVR 状态转移
         // 从得到load 到得到 load addr差了几个周期 ， 所以这里得到的状态
         // 是之前的状态
-        switch (mode.getMode()) {
+        if ((inst->pcState().instAddr()) >= 0x10156 && inst->pcState().instAddr() <= 0x101fe) { // XXX:先排除前面的干扰
+
+        switch (mode->getMode()) {
             case Mode::INIT : 
                 if (if_prf) {
                     time_out = 0;
                     tk.TaintReg(inst);
-                    rpts.stride_load_pc = inst->pcState().instAddr();
-                    mode.setMode(Mode::DISCOVER);
+                    rpts->stride_load_pc = inst->pcState().instAddr();
+                    mode->setMode(Mode::DISCOVER);
+                    DPRINTF(DVR, "[tid:%i] pc %s mode from init to discover.\n", tid, inst->pcState());
                 }
                 break;
 
             case Mode::DISCOVER:
                 if (towait) {
-                    if (tk.GetFinalLoadPC() != rpts.stride_load_pc) {
-                        mode.setMode(Mode::VECTOR);
-                        lbp.GetLoopNumber(rpts.stride_load_pc,loop_number); // 
+                    if (tk.GetFinalLoadPC() != rpts->stride_load_pc) {
+                        mode->setMode(Mode::VECTOR);
+
+                        DPRINTF(DVR, "[tid:%i] pc %s mode from discover to vector TimeOut:%d.\n", tid, inst->pcState(),time_out);
+                        // lbp.GetLoopNumber(rpts->stride_load_pc,loop_number); // 
                     }
                     else {
-                        mode.setMode(Mode::INIT);
+                        mode->setMode(Mode::INIT);
+                        DPRINTF(DVR, "[tid:%i] pc %s mode from discover to init.\n", tid, inst->pcState());
                     }
                     time_out = 0;
                     tk.ClearFinalLoadPC();
@@ -1105,10 +1111,12 @@ IEW::dispatchInsts(ThreadID tid)
                     break;
                 }
                 if (time_out >= 256) {
-                    mode.setMode(Mode::INIT);
+                    mode->setMode(Mode::INIT);
+                    DPRINTF(DVR, "[tid:%i] pc %s mode from discover to init.\n", tid, inst->pcState());
                     tk.clearVTTIfSeen();
                     tk.ClearFinalLoadPC();
-                    dvr_buffer.ClearBuffer();
+                    // dvr_buffer->ClearBuffer();
+                    rpts->stride_load_pc = 0;
                     break;
                 }
                 if (inst->isLoad() && if_prf) {
@@ -1125,45 +1133,57 @@ IEW::dispatchInsts(ThreadID tid)
             case Mode::VECTOR:  // 向量化发射
                 time_out++;
                 if (clear_vtt && towait) {
-                    mode.setMode(Mode::WAIT);
+                    mode->setMode(Mode::WAIT);
+                    DPRINTF(DVR, "[tid:%i] pc %s mode from vector to wait.\n", tid, inst->pcState());
                     tk.ClearFinalLoadPC();
                     tk.clearVTTIfSeen();
-                    rpts.UpdatePrefAddr(loop_number); // 在即将进入等待模式的时候更新预取地址的边界
+                    rpts->UpdatePrefAddr(loop_number); // 在即将进入等待模式的时候更新预取地址的边界
                     break;
                 }
                 else if (clear_vtt) {  // 说明是找到了另外一层循环
-                    mode.setMode(Mode::DISCOVER);
+                    mode->setMode(Mode::DISCOVER);
+                    DPRINTF(DVR, "[tid:%i] pc %s mode from vector to discover.\n", tid, inst->pcState());
                     tk.ClearFinalLoadPC();
                     tk.clearVTTIfSeen();
                     tk.TaintReg(inst); 
-                    rpts.stride_load_pc = inst->pcState().instAddr();
-                    dvr_buffer.ClearBuffer();
+                    rpts->stride_load_pc = inst->pcState().instAddr();
+                    dvr_buffer->ClearBuffer();
                 }
                 else if (time_out >= 256) {
-                    mode.setMode(Mode::INIT);
+                    mode->setMode(Mode::INIT);
+                    DPRINTF(DVR, "[tid:%i] pc %s mode from vector to init.\n", tid, inst->pcState());
                     tk.clearVTTIfSeen();
                     tk.ClearFinalLoadPC();
-                    dvr_buffer.ClearBuffer();
+                    dvr_buffer->ClearBuffer();
+                    rpts->stride_load_pc = 0;
                 }
             break;
 
             case Mode::WAIT:
                 if (clear_vtt && !towait) {  // 已经超出地址了,但是找到了另一个循环 
                     time_out = 0;
-                    mode.setMode(Mode::DISCOVER);
+                    mode->setMode(Mode::DISCOVER);
+                    DPRINTF(DVR, "[tid:%i] pc %s mode from wait to discover.\n", tid, inst->pcState());
                     tk.clearVTTIfSeen();
                     tk.ClearFinalLoadPC();
-                    // sb.ClearBuffer();
+                    dvr_buffer->ClearBuffer();
                     tk.TaintReg(inst); 
-                    rpts.stride_load_pc = inst->pcState().instAddr();
+                    rpts->stride_load_pc = inst->pcState().instAddr();
+                }
+                else { // TODO:先直接返回init 试试其他功能正常吗
+                    time_out = 0;
+                    mode->setMode(Mode::INIT);
+                    DPRINTF(DVR, "[tid:%i] pc %s mode from wait to init.\n", tid, inst->pcState());
+                    tk.clearVTTIfSeen();
+                    tk.ClearFinalLoadPC();
+                    rpts->stride_load_pc = 0;
                 }
                 break;
             default:
                 break;
-
         }
-  
-        // dvr end
+        }
+        /************ DVR End ************/ 
 
         insts_to_dispatch.pop();
 
@@ -1296,19 +1316,20 @@ IEW::executeInsts()
                 // Loads will mark themselves as executed, and their writeback
                 // event adds the instruction to the queue to commit
                 fault = ldstQueue.executeLoad(inst);
-                // dvr start
+               /************ DVR Start ************/ 
+               // TAG：地址获取完成之后创建并更新rpt表项
                 // 确保地址有效且翻译完成
                 if (inst->effAddrValid()) {
                 // auto [towait,vtt_clear,can_prf,stride_corr] =  rpts.processRequest(inst);
-                rpts.CreateNewEntry(inst);
-                rpts.UpdateEntry(inst);
-                if (inst->pcState().instAddr() == rpts.stride_load_pc) {
-                    rpts.prev_addr = inst->effAddr;
+                rpts->CreateNewEntry(inst);
+                rpts->UpdateEntry(inst);
+                if (inst->pcState().instAddr() == rpts->stride_load_pc) {
+                    rpts->prev_addr = inst->effAddr;
                 }
                 DPRINTF(IEW, "Load: PC=%s,%d\n", 
                     inst->pcState());
                 }
-                // dvr end
+               /************ DVR End ************/ 
 
                 if (inst->isTranslationDelayed() &&
                     fault == NoFault) {
@@ -1367,7 +1388,7 @@ IEW::executeInsts()
             }
 
             if (inst->isCondCtrl()) {
-                 lbp.UpdateLoopBoundaryDetector(rpts.stride_load_pc,inst);
+                //  lbp.UpdateLoopBoundaryDetector(rpts.stride_load_pc,inst);
             }
             inst->setExecuted();
 
@@ -1721,18 +1742,18 @@ IEW::checkMisprediction(const DynInstPtr& inst)
 }
 
 void 
-IEW::setRptFile(rptFiles &rpt_file) {
+IEW::setRptFile(rptFiles *rpt_file) {
     rpts = rpt_file;
 }
 
 void 
-IEW::setDvrMode(Mode &mode) {
+IEW::setDvrMode(Mode *mode) {
     this->mode = mode;
 }
 
 
 void 
-IEW::setDvrBuffer(DvrBuffer &DvrBuffer) {
+IEW::setDvrBuffer(DvrBuffer *DvrBuffer) {
     this->dvr_buffer = DvrBuffer;
 }
 } // namespace o3

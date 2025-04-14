@@ -61,6 +61,10 @@ Source('remote_gdb.cc', tags='riscv isa')
 Source('semihosting.cc', tags='riscv isa')
 Source('tlb.cc', tags='riscv isa')
 
+## dvr start
+Source('vectorizer.cc',tags='riscv isa')
+## dvr end
+
 Source('linux/se_workload.cc', tags='riscv isa')
 Source('linux/fs_workload.cc', tags='riscv isa')
 

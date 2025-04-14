@@ -8,6 +8,8 @@
 #include "cpu/o3/limits.hh"
 #include "debug/Fetch.hh"
 #include "params/BaseO3CPU.hh"
+#include "debug/Decode.hh"
+#include "debug/DVR.hh"
 
 namespace gem5 {
 namespace o3 {
@@ -21,9 +23,10 @@ DvrBuffer::DvrBuffer(CPU *_cpu, const BaseO3CPUParams &params):
 
 
 void DvrBuffer::pushInstruction(DynInstPtr &inst) {
-        if (fifo.size() < max_size) {
-            fifo.push(inst);
-        }
+    DPRINTF(DVR, "put the dvrbuffer %s\n", inst->pcState());
+    if (fifo.size() < max_size) {
+         fifo.push(inst);
+    }
 }
 
 // void DvrBuffer::updateStrideLoadPC(uint64_t new_pc) {

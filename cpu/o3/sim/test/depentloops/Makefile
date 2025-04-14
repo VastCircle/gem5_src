@@ -14,4 +14,4 @@ depentloops.riscv:depentloops.o
 gem5:depentloops_gem5.riscv
 
 depentloops_gem5.riscv:depentloops.c
-	riscv64-unknown-elf-gcc -march=rv64gc -mabi=lp64d -static -o depentloops_gem5.riscv depentloops.c 
+	riscv64-unknown-elf-gcc -O2 -march=rv64gc -mabi=lp64d -static -o depentloops_gem5.riscv depentloops.c 

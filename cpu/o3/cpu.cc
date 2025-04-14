@@ -270,10 +270,12 @@ CPU::CPU(const BaseO3CPUParams &params)
     rename.setFreeList(&freeList);
 
     // dvr start
-    decode.setDvrBuffer(dvrbuffer);
-    iew.setRptFile(rpts);
-    iew.setDvrMode(mode);
-    iew.setDvrBuffer(dvrbuffer);
+    decode.setDvrBuffer(&dvrbuffer);
+    iew.setRptFile(&rpts);
+    iew.setDvrMode(&mode);
+    iew.setDvrBuffer(&dvrbuffer);
+    fetch.setDvrBuffer(&dvrbuffer);
+    fetch.setDvrMode(&mode);
     // dvr end
 
     // Setup the ROB for whichever stages need it.

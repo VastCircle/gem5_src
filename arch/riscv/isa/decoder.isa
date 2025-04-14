@@ -5084,6 +5084,36 @@ decode QUADRANT default Unknown::unknown() {
             }
         }
 
+        0x1d: decode FUNCT3 { // vimm_alg
+            format ExtendVectorIntFormat {
+                0x00: vaddi_v({{
+                    Vd_vi[i] = Vs1_vi[i] + (vi)sext<12>(IMM12);
+                    }},OPIV,SimdAddOp);
+                0x01: decode FS3 {
+                    0x00: vslli_v({{
+                        Vd_vu[i] = Vs1_vu[i] << ((vu)SHAMT6 & (sew - 1) & 0x1f);
+                    }}, OPIVI, SimdShiftOp);
+                }
+                0x04: vxori_v({{
+                        Vd_vi[i] = Vs1_vi[i] ^ (vi)sext<12>(IMM12);
+                }}, OPIVI, SimdAluOp);
+                0x05: decode FS3 {
+                    0x00: vsrli_v({{
+                            Vd_vu[i] = Vs1_vu[i] >> ((vu)SHAMT6 & (sew - 1) & 0x1f);
+                    }}, OPIVI, SimdShiftOp);
+                    0x01: vsrai_v({{
+                      Vd_vi[i] = Vs1_vi[i] >> ((vu)SHAMT6 & (sew - 1) & 0x1f);
+                    }}, OPIVI, SimdShiftOp);
+                }
+                0x06: vori_v({{
+                     Vd_vi[i] = Vs1_vi[i] | (vi)sext<12>(IMM12);
+                }}, OPIVI, SimdAluOp);
+                0x07: vandi_v({{
+                     Vd_vi[i] = Vs1_vi[i] & (vi)sext<12>(IMM12);
+                }}, OPIVI, SimdAluOp);
+            }
+        }
         0x1e: M5Op::M5Op();
-    }
+
+   }
 }

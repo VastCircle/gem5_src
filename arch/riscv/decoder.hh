@@ -40,6 +40,10 @@
 #include "debug/Decode.hh"
 #include "params/RiscvDecoder.hh"
 
+// dvrstart
+#include "arch/riscv/vectorizer.hh"
+// dvrend
+
 namespace gem5
 {
 
@@ -54,6 +58,9 @@ class Decoder : public InstDecoder
     decode_cache::InstMap<ExtMachInst> instMap;
     bool aligned;
     bool mid;
+    // dvrstart
+    Vectorizer vectorizer;
+    // dvrend
 
   protected:
     //The extended machine instruction being generated
@@ -70,6 +77,8 @@ class Decoder : public InstDecoder
     /// @param mach_inst The binary instruction to decode.
     /// @retval A pointer to the corresponding StaticInst object.
     StaticInstPtr decode(ExtMachInst mach_inst, Addr addr);
+    StaticInstPtr decode2vec(ExtMachInst mach_inst, Addr addr);
+    StaticInstPtr scala2vectorized(ExtMachInst mach_inst) ;
 
   public:
     Decoder(const RiscvDecoderParams &p);
@@ -83,6 +92,9 @@ class Decoder : public InstDecoder
     void moreBytes(const PCStateBase &pc, Addr fetchPC) override;
 
     StaticInstPtr decode(PCStateBase &nextPC) override;
+    // dvr_start
+    StaticInstPtr decode2vec(PCStateBase &nextPC,StaticInstPtr &StaticInst) override;
+    // dvr_end
 };
 
 } // namespace RiscvISA

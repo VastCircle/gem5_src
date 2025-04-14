@@ -164,10 +164,10 @@ class IEW
     /** Sets pointer to the scoreboard. */
     void setScoreboard(Scoreboard *sb_ptr);
 
-    void setRptFile(rptFiles &rpt_file);
+    void setRptFile(rptFiles *rpt_file);
 
-    void setDvrMode(Mode &mode);
-    void setDvrBuffer(DvrBuffer &DvrBuffer);
+    void setDvrMode(Mode *mode);
+    void setDvrBuffer(DvrBuffer *DvrBuffer);
 
     /** Perform sanity checks after a drain. */
     void drainSanityCheck() const;
@@ -364,11 +364,11 @@ class IEW
     void printAvailableInsts();
 
     // dvr start
-    rptFiles rpts;
-    Mode mode;
+    rptFiles *rpts;
+    Mode *mode;
     TaintTracker tk;
     LoopBoundaryPredictor  lbp;
-    DvrBuffer dvr_buffer;
+    DvrBuffer *dvr_buffer;
 
     // dvr end
 

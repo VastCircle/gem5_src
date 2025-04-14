@@ -63,7 +63,6 @@ namespace o3
 
 Decode::Decode(CPU *_cpu, const BaseO3CPUParams &params)
     : cpu(_cpu),
-      dvr_buffer(_cpu,params),
       renameToDecodeDelay(params.renameToDecodeDelay),
       iewToDecodeDelay(params.iewToDecodeDelay),
       commitToDecodeDelay(params.commitToDecodeDelay),
@@ -611,7 +610,7 @@ Decode::decode(bool &status_change, ThreadID tid)
 
         if (fetchInstsValid()) {
             // Add the current inputs to the skid buffer so they can be
-            // reprocessed when this stage unblocks.
+            // reprocessed when this sta unblocks.
             skidInsert(tid);
         }
 
@@ -656,10 +655,10 @@ Decode::decodeInsts(ThreadID tid)
         // if (cpu->getStridePc() == inst->pcState().instAddr() || mode.getMode() == Mode::WAIT) {
         //     dvr_buffer.pushInstruction(inst);
         // }
-        if ((cpu->getStridePc() == inst->pcState().instAddr() && mode.getMode() == Mode::DISCOVER) 
-        || mode.getMode() == Mode::VECTOR) {
-             dvr_buffer.pushInstruction(inst);
-        }
+        // if ((cpu->getStridePc() == inst->pcState().instAddr() && mode.getMode() == Mode::DISCOVER) 
+        // || mode.getMode() == Mode::VECTOR) {
+        //      dvr_buffer.pushInstruction(inst);
+        // }
         // dvr_end
 
         insts_to_decode.pop();
@@ -684,8 +683,7 @@ Decode::decodeInsts(ThreadID tid)
         // should exist here or at a later stage; however it doesn't matter
         // too much for function correctness.
         if (inst->numSrcRegs() == 0) {
-            inst->setCanIssue();
-        }
+            inst->setCanIssue(); }
 
         // This current instruction is valid, so add it into the decode
         // queue.  The next instruction may not be valid, so check to
@@ -759,7 +757,7 @@ Decode::decodeInsts(ThreadID tid)
 }
 
 void 
-Decode::setDvrBuffer(DvrBuffer &dvr_buff) {
+Decode::setDvrBuffer(DvrBuffer *dvr_buff) {
     dvr_buffer = dvr_buff;
 }
 

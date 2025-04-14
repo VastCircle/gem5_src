@@ -211,6 +211,7 @@ Commit::setTimeBuffer(TimeBuffer<TimeStruct> *tb_ptr)
     toIEW = timeBuffer->getWire(0);
 
     // Setup wire to read data from IEW (for the ROB).
+    // HACK:这是不是都没用到
     robInfoFromIEW = timeBuffer->getWire(-iewToCommitDelay);
 }
 

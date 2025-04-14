@@ -58,6 +58,11 @@
 #include "sim/eventq.hh"
 #include "sim/probe/probe.hh"
 
+// dvr start
+#include "dvr_buffer.hh"
+#include "dvrstat.hh"
+// // dvr end
+
 namespace gem5
 {
 
@@ -202,6 +207,11 @@ class Fetch
     ProbePointArg<RequestPtr> *ppFetchRequestSent;
 
     Random::RandomPtr rng = Random::genRandom();
+
+    // dvr start
+    DvrBuffer *dvr_buffer;
+    Mode *mode;
+    // dvr end
 
   public:
     /** Fetch constructor. */
@@ -362,6 +372,12 @@ class Fetch
 
     RequestPort &getInstPort() { return icachePort; }
 
+    // // 设置dvr_buffer
+    void setDvrBuffer(DvrBuffer *dvr_buff);
+    void setDvrMode(Mode *mode) {
+      this->mode = mode;
+    }
+
   private:
     DynInstPtr buildInst(ThreadID tid, StaticInstPtr staticInst,
             StaticInstPtr curMacroop, const PCStateBase &this_pc,
@@ -388,6 +404,8 @@ class Fetch
 
     /** Profile the reasons of fetch stall. */
     void profileStall(ThreadID tid);
+
+
 
   private:
     /** Pointer to the O3CPU. */
@@ -579,6 +597,17 @@ class Fetch
         /** Rate of how often fetch was idle. */
         statistics::Formula idleRate;
     } fetchStats;
+  
+  // public:
+  //   // 设置dvr_buffer
+  //   void setDvrBuffer(DvrBuffer &dvr_buff) {
+  //     this->dvr_buffer = dvr_buff;
+  //   }
+  //   void setDvrMode(Mode &mode) {
+  //     this->mode = mode;
+  //   }
+// dvr_end
+
 };
 
 } // namespace o3

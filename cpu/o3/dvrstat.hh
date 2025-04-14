@@ -1,6 +1,7 @@
 #ifndef __CPU_O3_DVRSTAT_HH__
 #define __CPU_O3_DVRSTAT_HH__
 
+
 namespace gem5
 {
 namespace o3

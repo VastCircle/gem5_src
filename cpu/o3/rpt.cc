@@ -126,11 +126,12 @@ std::tuple<bool,bool> rptFiles::UpdateEntrySeen(DynInstPtr &inst) {
         return std::make_tuple(false,false);
     RPTEntry entry;
     entry = it->second;
-    entry.seen = true;
+    // entry.seen = true;
     bool can_prf = entry.GetCanPrf(); 
     if (can_prf && entry.seen && stride_load_pc != pc) {  
         clearAllSeen();
         clear_vtt = true;
+        DPRINTF(TTK, "update stride_pc from %x to %x\n",stride_load_pc,pc);
         stride_load_pc = pc;
     }
 
@@ -161,8 +162,8 @@ bool rptFiles::UpdateEntry(DynInstPtr &inst) {
     uint64_t tag = pc / nSets;
 
     // 执行和dispatch  
-    // TODO: 如果短时间内多条load 指令 抢占了同一个表项 ， 
-    // 并且前一个load 还没有得到地址 ，就很有可能触发assert(hit)  
+    // NOTE: 如果短时间内多条load 指令抢占了同一个表项 ，并且前一个load 还没有得到地址 ，就很有可能触发assert(hit)  
+    // 所以把创建表项也放在的execute阶段
     // 10362 101e2 , index 一致  , 10362 没有 issue , 就被取代了
     // 能否执行阶段的时候去创建
     // 执行阶段创建表项 ， dispatch 阶段只读
@@ -170,6 +171,7 @@ bool rptFiles::UpdateEntry(DynInstPtr &inst) {
     bool hit = (it != rpt.end() && it->second.tag == tag);
     // assert (it != rpt.end());
     assert(hit);
+    DPRINTF(TTK, "update entry for pc:%s new_addr : %x\n",inst->pcState(),address);
     RPTEntry entry;
     entry = it->second;
 
@@ -182,6 +184,9 @@ bool rptFiles::UpdateEntry(DynInstPtr &inst) {
     if (hit) {
         std::tie(can_prf,state) = entry.StateTrans(stride_corr);  // 命中了进行状态转移
         entry.UpdateStride(stride_corr,new_stride); 
+        if (can_prf) {
+            DPRINTF(TTK, "can_prf for pc:%s \n",inst->pcState());
+        }
     }
     else { // 不命中的话就是初始状态
         can_prf = false;
@@ -267,10 +272,10 @@ std::tuple<bool,bool,bool,bool> rptFiles::processRequest(DynInstPtr &inst) {
     // 在stride_load_pc 不变的情况下 ，discover_mode 得到的 final_load_pc , buffer 都可以保留的
     // stride_load_pc改变的情况 : 发现了更内层的循环，或者发现了另一个循环 ，表征的都是发现一个seen = 1 且 stride_load_pc != pc
     // 这个时候需要清空vtt, 清空 buffer  ,清空seen , seen 还是清了好, 比方说内循环刚结束，如果不清seen ， 还会把stride_load设置为外循环
-
     if (can_prf && entry.seen && stride_load_pc != pc) {  
         clearAllSeen();
         clear_vtt = true;
+        DPRINTF(TTK, "update stride_pc from %x to %x\n",stride_load_pc,inst->pcState());
         stride_load_pc = pc;
     }
 
